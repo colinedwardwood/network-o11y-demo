@@ -1,24 +1,93 @@
 {
-  "annotations": {
-    "list": []
-  },
+  "uid": "net-o11y-traffic-flows",
+  "title": "Network O11y \u2014 Fabric Traffic",
   "description": "gNMI interface byte/packet rates per SR Linux device and interface.",
+  "tags": [
+    "network-o11y-demo"
+  ],
+  "schemaVersion": 41,
+  "version": 0,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
   "editable": true,
-  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 4331420212224000,
   "links": [],
   "panels": [
     {
+      "id": 1,
+      "type": "row",
+      "title": "About this Dashboard",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"padding:10px 16px;font-size:14px;line-height:1.65;\">\n<p style=\"margin:0 0 8px 0;\">\n  <strong>Network O11y \u2014 Fabric Traffic</strong> shows per-interface ingress and egress byte\n  and packet rates across the entire fabric, plus fabric-wide aggregate totals. Use the\n  <em>Device</em> variable to focus on a single switch.\n</p>\n<p style=\"margin:0;\">\n  <strong>Telemetry pipeline:</strong>\n  Interface statistics are collected via <strong>gNMI streaming telemetry</strong>. gnmic\n  subscribes to <code>/interface[name=*]/statistics/</code> on each SR Linux node and\n  exports in/out octet and packet counters as Prometheus metrics. Grafana Alloy scrapes\n  the gnmic endpoint every 30 s and forwards data to Grafana Cloud.\n</p>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "10.0.0",
+      "transparent": true
+    },
+    {
+      "id": 3,
+      "type": "row",
+      "title": "",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Total Fabric In (last 5m)",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 7
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
+          "unit": "bits",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -28,22 +97,13 @@
               }
             ]
           },
-          "unit": "bits"
+          "color": {
+            "mode": "fixed"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 0
-      },
-      "id": 1,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -51,6 +111,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -59,88 +123,32 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "sum(increase(srl_iface_in_octets{job=\"integrations/gnmi\"}[5m])) * 8",
-          "instant": true,
           "legendFormat": "Bits",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Total Fabric In (last 5m)",
-      "type": "stat"
+      ]
     },
     {
+      "id": 5,
+      "type": "stat",
+      "title": "Total Fabric Out (last 5m)",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "bits"
-        },
-        "overrides": []
       },
       "gridPos": {
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 0
-      },
-      "id": 2,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum(increase(srl_iface_out_octets{job=\"integrations/gnmi\"}[5m])) * 8",
-          "instant": true,
-          "legendFormat": "Bits",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Total Fabric Out (last 5m)",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
+        "y": 7
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
+          "unit": "bits",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -150,58 +158,58 @@
               }
             ]
           },
-          "unit": "none"
+          "color": {
+            "mode": "fixed"
+          }
         },
         "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(increase(srl_iface_out_octets{job=\"integrations/gnmi\"}[5m])) * 8",
+          "legendFormat": "Bits",
+          "refId": "A",
+          "editorMode": "code",
+          "range": false,
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Active Interfaces",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 0
-      },
-      "id": 3,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "count(srl_iface_in_octets{job=\"integrations/gnmi\"})",
-          "instant": true,
-          "legendFormat": "Interfaces",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Active Interfaces",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
+        "y": 7
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
+          "unit": "none",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -211,22 +219,74 @@
               }
             ]
           },
-          "unit": "none"
+          "color": {
+            "mode": "fixed"
+          }
         },
         "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "count(srl_iface_in_octets{job=\"integrations/gnmi\"})",
+          "legendFormat": "Interfaces",
+          "refId": "A",
+          "editorMode": "code",
+          "range": false,
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "Active Devices",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 0
+        "y": 7
       },
-      "id": 4,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "fixed"
+          }
+        },
+        "overrides": []
+      },
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -234,6 +294,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -242,204 +306,71 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "count(count by (source) (srl_iface_in_octets{job=\"integrations/gnmi\"}))",
-          "instant": true,
           "legendFormat": "Devices",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Active Devices",
-      "type": "stat"
+      ]
     },
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 4
-      },
-      "id": 5,
-      "panels": [],
-      "title": "Interface Traffic Rates",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 4,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          },
-          "unit": "bps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 0,
-        "y": 5
-      },
-      "id": 6,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "rate(srl_iface_in_octets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval]) * 8",
-          "instant": false,
-          "legendFormat": "{{source}} {{interface_name}} in",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Inbound (bits/s) \u2014 by interface",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 4,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          },
-          "unit": "bps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 5
-      },
-      "id": 7,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "rate(srl_iface_out_octets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval]) * 8",
-          "instant": false,
-          "legendFormat": "{{source}} {{interface_name}} out",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Outbound (bits/s) \u2014 by interface",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 14
-      },
       "id": 8,
-      "panels": [],
-      "title": "Top Talkers",
-      "type": "row"
+      "type": "row",
+      "title": "Interface Traffic Rates",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "collapsed": false,
+      "panels": []
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 4,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          },
-          "unit": "bps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 0,
-        "y": 15
-      },
       "id": 9,
+      "type": "timeseries",
+      "title": "Inbound (bits/s) \u2014 by interface",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
       "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
         "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
           "calcs": [
             "lastNotNull",
             "max",
             "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
+          ]
         }
       },
       "targets": [
@@ -448,131 +379,58 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
+          "expr": "rate(srl_iface_in_octets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval]) * 8",
+          "legendFormat": "{{source}} {{interface_name}} in",
+          "refId": "A",
           "editorMode": "code",
-          "expr": "topk(5, rate(srl_iface_in_octets{job=\"integrations/gnmi\"}[$__rate_interval]) * 8)",
-          "instant": false,
-          "legendFormat": "{{source}} {{interface_name}}",
           "range": true,
-          "refId": "A"
+          "instant": false
         }
-      ],
-      "title": "Top 5 Interfaces by Inbound bps",
-      "type": "timeseries"
+      ]
     },
     {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Outbound (bits/s) \u2014 by interface",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 4,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          },
-          "unit": "bps"
-        },
-        "overrides": []
       },
       "gridPos": {
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 15
-      },
-      "id": 10,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "topk(5, rate(srl_iface_out_octets{job=\"integrations/gnmi\"}[$__rate_interval]) * 8)",
-          "instant": false,
-          "legendFormat": "{{source}} {{interface_name}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Top 5 Interfaces by Outbound bps",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 24
-      },
-      "id": 11,
-      "panels": [],
-      "title": "Packet Rates",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
+        "y": 12
       },
       "fieldConfig": {
         "defaults": {
+          "unit": "bps",
           "custom": {
-            "fillOpacity": 4,
             "lineWidth": 1,
+            "fillOpacity": 4,
             "showPoints": "never",
             "spanNulls": true,
             "stacking": {
-              "group": "A",
-              "mode": "none"
+              "mode": "none",
+              "group": "A"
             }
-          },
-          "unit": "pps"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 25
-      },
-      "id": 12,
       "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
         "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
           "calcs": [
             "lastNotNull",
             "max",
             "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
+          ]
         }
       },
       "targets": [
@@ -581,131 +439,71 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
-          "expr": "rate(srl_iface_in_packets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval])",
-          "instant": false,
-          "legendFormat": "{{source}} {{interface_name}} in",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Inbound Packets/s",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 4,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          },
-          "unit": "pps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 25
-      },
-      "id": 13,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "rate(srl_iface_out_packets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval])",
-          "instant": false,
+          "expr": "rate(srl_iface_out_octets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval]) * 8",
           "legendFormat": "{{source}} {{interface_name}} out",
+          "refId": "A",
+          "editorMode": "code",
           "range": true,
-          "refId": "A"
+          "instant": false
         }
-      ],
-      "title": "Outbound Packets/s",
-      "type": "timeseries"
+      ]
     },
     {
-      "collapsed": false,
+      "id": 11,
+      "type": "row",
+      "title": "Top Talkers",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 33
+        "y": 21
       },
-      "id": 14,
-      "panels": [],
-      "title": "Errors & Discards",
-      "type": "row"
+      "collapsed": false,
+      "panels": []
     },
     {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Top 5 Interfaces by Inbound bps",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
       "fieldConfig": {
         "defaults": {
+          "unit": "bps",
           "custom": {
-            "fillOpacity": 4,
             "lineWidth": 1,
+            "fillOpacity": 4,
             "showPoints": "never",
             "spanNulls": true,
             "stacking": {
-              "group": "A",
-              "mode": "none"
+              "mode": "none",
+              "group": "A"
             }
-          },
-          "unit": "reqps"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 34
-      },
-      "id": 15,
       "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
         "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
           "calcs": [
             "lastNotNull",
             "max",
             "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
+          ]
         }
       },
       "targets": [
@@ -714,58 +512,191 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
-          "expr": "rate(srl_iface_in_error_packets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval])",
-          "instant": false,
+          "expr": "topk(5, rate(srl_iface_in_octets{job=\"integrations/gnmi\"}[$__rate_interval]) * 8)",
           "legendFormat": "{{source}} {{interface_name}}",
+          "refId": "A",
+          "editorMode": "code",
           "range": true,
-          "refId": "A"
+          "instant": false
         }
-      ],
-      "title": "Input Errors (per sec)",
-      "type": "timeseries"
+      ]
     },
     {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Top 5 Interfaces by Outbound bps",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
       "fieldConfig": {
         "defaults": {
+          "unit": "bps",
           "custom": {
-            "fillOpacity": 4,
             "lineWidth": 1,
+            "fillOpacity": 4,
             "showPoints": "never",
             "spanNulls": true,
             "stacking": {
-              "group": "A",
-              "mode": "none"
+              "mode": "none",
+              "group": "A"
             }
-          },
-          "unit": "reqps"
+          }
         },
         "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "topk(5, rate(srl_iface_out_octets{job=\"integrations/gnmi\"}[$__rate_interval]) * 8)",
+          "legendFormat": "{{source}} {{interface_name}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "type": "row",
+      "title": "Packet Rates",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Inbound Packets/s",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "pps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "rate(srl_iface_in_packets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval])",
+          "legendFormat": "{{source}} {{interface_name}} in",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "Outbound Packets/s",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 34
+        "y": 32
       },
-      "id": 16,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "pps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
       "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
         "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
           "calcs": [
             "lastNotNull",
             "max",
             "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
+          ]
         }
       },
       "targets": [
@@ -774,50 +705,171 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
+          "expr": "rate(srl_iface_out_packets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval])",
+          "legendFormat": "{{source}} {{interface_name}} out",
+          "refId": "A",
           "editorMode": "code",
-          "expr": "rate(srl_iface_in_discarded_packets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval])",
-          "instant": false,
-          "legendFormat": "{{source}} {{interface_name}}",
           "range": true,
-          "refId": "A"
+          "instant": false
         }
-      ],
+      ]
+    },
+    {
+      "id": 17,
+      "type": "row",
+      "title": "Errors & Discards",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Input Errors (per sec)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 41
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "rate(srl_iface_in_error_packets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval])",
+          "legendFormat": "{{source}} {{interface_name}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "type": "timeseries",
       "title": "Input Discards (per sec)",
-      "type": "timeseries"
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 41
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "rate(srl_iface_in_discarded_packets{job=\"integrations/gnmi\", source=~\"$device\", interface_name=~\"$interface\"}[$__rate_interval])",
+          "legendFormat": "{{source}} {{interface_name}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
     }
-  ],
-  "refresh": "30s",
-  "schemaVersion": 41,
-  "tags": [
-    "network-o11y-demo"
   ],
   "templating": {
     "list": [
       {
+        "name": "datasource",
+        "type": "datasource",
+        "label": "Prometheus",
+        "query": "prometheus",
+        "refresh": 1,
         "current": {},
         "hide": 0,
         "includeAll": false,
-        "label": "Prometheus",
         "multi": false,
-        "name": "datasource",
-        "options": [],
-        "query": "prometheus",
-        "refresh": 1,
-        "type": "datasource"
+        "options": []
       },
       {
-        "allValue": ".*",
-        "current": {},
+        "name": "device",
+        "type": "query",
+        "label": "Device",
         "datasource": {
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "hide": 0,
-        "includeAll": true,
-        "label": "Device",
-        "multi": true,
-        "name": "device",
-        "options": [],
         "query": {
           "query": "label_values(srl_iface_in_octets{job=\"integrations/gnmi\"}, source)",
           "refId": "StandardVariableQuery"
@@ -825,21 +877,21 @@
         "refresh": 2,
         "regex": "",
         "sort": 1,
-        "type": "query"
+        "multi": true,
+        "includeAll": true,
+        "current": {},
+        "hide": 0,
+        "options": [],
+        "allValue": ".*"
       },
       {
-        "allValue": ".*",
-        "current": {},
+        "name": "interface",
+        "type": "query",
+        "label": "Interface",
         "datasource": {
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "hide": 0,
-        "includeAll": true,
-        "label": "Interface",
-        "multi": true,
-        "name": "interface",
-        "options": [],
         "query": {
           "query": "label_values(srl_iface_in_octets{job=\"integrations/gnmi\", source=~\"$device\"}, interface_name)",
           "refId": "StandardVariableQuery"
@@ -847,17 +899,17 @@
         "refresh": 2,
         "regex": "",
         "sort": 1,
-        "type": "query"
+        "multi": true,
+        "includeAll": true,
+        "current": {},
+        "hide": 0,
+        "options": [],
+        "allValue": ".*"
       }
     ]
   },
-  "time": {
-    "from": "now-1h",
-    "to": "now"
+  "annotations": {
+    "list": []
   },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "Network O11y \u2014 Fabric Traffic",
-  "uid": "net-o11y-traffic-flows",
-  "version": 4
+  "fiscalYearStartMonth": 0
 }

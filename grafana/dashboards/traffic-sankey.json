@@ -1,235 +1,274 @@
 {
-  "annotations": {
-    "list": []
-  },
+  "uid": "net-o11y-traffic-sankey",
+  "title": "Network O11y \u2014 Traffic Sankey",
   "description": "Sankey flow diagrams of SR Linux Clos fabric traffic. Uses label_replace() to map gNMI interface names to connected device names.",
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "id": 4338411995324416,
-  "links": [],
-  "panels": [
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 1,
-      "panels": [],
-      "title": "Spine \u2194 Leaf Traffic",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 12,
-        "x": 0,
-        "y": 1
-      },
-      "id": 2,
-      "options": {
-        "layoutIterations": 32,
-        "linkColor": "multi",
-        "nodeColor": "#7EB26D",
-        "nodePadding": 10,
-        "nodeWidth": 20
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum by (source, destination) (  label_replace(    label_replace(      label_replace(        label_replace(          rate(ifHCOutOctets{job=~\"integrations/snmp/spine.*\", ifDescr=~\"ethernet-1/[123]\"}[$__rate_interval]) * 8,          \"source\", \"$1\", \"job\", \"integrations/snmp/(.*)\"        ),        \"destination\", \"leaf1\", \"ifDescr\", \"ethernet-1/1\"      ),      \"destination\", \"leaf2\", \"ifDescr\", \"ethernet-1/2\"    ),    \"destination\", \"leaf3\", \"ifDescr\", \"ethernet-1/3\"  ))",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Spine \u2192 Leaf",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "indexByName": {
-              "Value": 2,
-              "destination": 1,
-              "source": 0
-            },
-            "renameByName": {
-              "Value": "bps",
-              "destination": "Destination",
-              "source": "Source"
-            }
-          }
-        }
-      ],
-      "type": "netsage-sankey-panel"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 12,
-        "x": 12,
-        "y": 1
-      },
-      "id": 3,
-      "options": {
-        "layoutIterations": 32,
-        "linkColor": "multi",
-        "nodeColor": "#7EB26D",
-        "nodePadding": 10,
-        "nodeWidth": 20
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum by (source, destination) (  label_replace(    label_replace(      label_replace(        rate(ifHCOutOctets{job=~\"integrations/snmp/leaf.*\", ifDescr=~\"ethernet-1/(49|50)\"}[$__rate_interval]) * 8,        \"source\", \"$1\", \"job\", \"integrations/snmp/(.*)\"      ),      \"destination\", \"spine1\", \"ifDescr\", \"ethernet-1/49\"    ),    \"destination\", \"spine2\", \"ifDescr\", \"ethernet-1/50\"  ))",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Leaf \u2192 Spine",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "indexByName": {
-              "Value": 2,
-              "destination": 1,
-              "source": 0
-            },
-            "renameByName": {
-              "Value": "bps",
-              "destination": "Destination",
-              "source": "Source"
-            }
-          }
-        }
-      ],
-      "type": "netsage-sankey-panel"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 14,
-        "w": 24,
-        "x": 0,
-        "y": 15
-      },
-      "id": 4,
-      "options": {
-        "layoutIterations": 32,
-        "linkColor": "multi",
-        "nodeColor": "#7EB26D",
-        "nodePadding": 10,
-        "nodeWidth": 20
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "(sum by (source, destination) (  label_replace(    label_replace(      label_replace(        label_replace(          rate(ifHCOutOctets{job=~\"integrations/snmp/spine.*\", ifDescr=~\"ethernet-1/[123]\"}[$__rate_interval]) * 8,          \"source\", \"$1\", \"job\", \"integrations/snmp/(.*)\"        ),        \"destination\", \"leaf1\", \"ifDescr\", \"ethernet-1/1\"      ),      \"destination\", \"leaf2\", \"ifDescr\", \"ethernet-1/2\"    ),    \"destination\", \"leaf3\", \"ifDescr\", \"ethernet-1/3\"  ))) + on(source, destination) (sum by (source, destination) (  label_replace(    label_replace(      label_replace(        label_replace(          rate(ifHCOutOctets{job=~\"integrations/snmp/leaf.*\", ifDescr=~\"ethernet-1/(49|50)\"}[$__rate_interval]) * 8,          \"source\", \"$1\", \"job\", \"integrations/snmp/(.*)\"        ),        \"destination\", \"$1\", \"source\", \"(leaf.*)\"      ),      \"source\", \"spine1\", \"ifDescr\", \"ethernet-1/49\"    ),    \"source\", \"spine2\", \"ifDescr\", \"ethernet-1/50\"  )))",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Spine \u2194 Leaf (Aggregate)",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "indexByName": {
-              "Value": 2,
-              "destination": 1,
-              "source": 0
-            },
-            "renameByName": {}
-          }
-        }
-      ],
-      "type": "netsage-sankey-panel"
-    }
-  ],
-  "refresh": "30s",
-  "schemaVersion": 41,
   "tags": [
     "network-o11y-demo"
   ],
-  "templating": {
-    "list": [
-      {
-        "current": {},
-        "hide": 0,
-        "includeAll": false,
-        "label": "Prometheus",
-        "multi": false,
-        "name": "datasource",
-        "options": [],
-        "query": "prometheus",
-        "refresh": 1,
-        "type": "datasource"
-      }
-    ]
-  },
+  "schemaVersion": 41,
+  "version": 0,
+  "refresh": "30s",
   "time": {
     "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Network O11y \u2014 Traffic Sankey",
-  "uid": "net-o11y-traffic-sankey",
-  "version": 13
+  "editable": true,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "About this Dashboard",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"padding:10px 16px;font-size:14px;line-height:1.65;\">\n<p style=\"margin:0 0 8px 0;\">\n  <strong>Network O11y \u2014 Traffic Sankey</strong> visualises directional traffic volumes\n  between the spine and leaf layers of the Clos fabric as an interactive Sankey diagram.\n  Link widths are proportional to egress byte rate.\n</p>\n<p style=\"margin:0;\">\n  <strong>Telemetry pipeline:</strong>\n  Egress byte counters are collected via <strong>SNMP v2c</strong> polling by Grafana Alloy\n  (60 s interval, IF-MIB <code>ifHCOutOctets</code>). PromQL\n  <code>label_replace()</code> expressions map interface names to connected peer devices,\n  enabling the flow-based visualisation.\n</p>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "10.0.0",
+      "transparent": true
+    },
+    {
+      "id": 3,
+      "type": "row",
+      "title": "Spine \u2194 Leaf Traffic",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 4,
+      "type": "netsage-sankey-panel",
+      "title": "Spine \u2192 Leaf",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 0,
+        "y": 7
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "linkColor": "multi",
+        "nodeColor": "#7EB26D",
+        "nodeWidth": 20,
+        "nodePadding": 10,
+        "layoutIterations": 32
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (source, destination) (  label_replace(    label_replace(      label_replace(        label_replace(          rate(ifHCOutOctets{job=~\"integrations/snmp/spine.*\", ifDescr=~\"ethernet-1/[123]\"}[$__rate_interval]) * 8,          \"source\", \"$1\", \"job\", \"integrations/snmp/(.*)\"        ),        \"destination\", \"leaf1\", \"ifDescr\", \"ethernet-1/1\"      ),      \"destination\", \"leaf2\", \"ifDescr\", \"ethernet-1/2\"    ),    \"destination\", \"leaf3\", \"ifDescr\", \"ethernet-1/3\"  ))",
+          "legendFormat": "",
+          "refId": "A",
+          "editorMode": "code",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "source": 0,
+              "destination": 1,
+              "Value": 2
+            },
+            "renameByName": {
+              "source": "Source",
+              "destination": "Destination",
+              "Value": "bps"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "netsage-sankey-panel",
+      "title": "Leaf \u2192 Spine",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 12,
+        "y": 7
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "linkColor": "multi",
+        "nodeColor": "#7EB26D",
+        "nodeWidth": 20,
+        "nodePadding": 10,
+        "layoutIterations": 32
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum by (source, destination) (  label_replace(    label_replace(      label_replace(        rate(ifHCOutOctets{job=~\"integrations/snmp/leaf.*\", ifDescr=~\"ethernet-1/(49|50)\"}[$__rate_interval]) * 8,        \"source\", \"$1\", \"job\", \"integrations/snmp/(.*)\"      ),      \"destination\", \"spine1\", \"ifDescr\", \"ethernet-1/49\"    ),    \"destination\", \"spine2\", \"ifDescr\", \"ethernet-1/50\"  ))",
+          "legendFormat": "",
+          "refId": "A",
+          "editorMode": "code",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "source": 0,
+              "destination": 1,
+              "Value": 2
+            },
+            "renameByName": {
+              "source": "Source",
+              "destination": "Destination",
+              "Value": "bps"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "netsage-sankey-panel",
+      "title": "Spine \u2194 Leaf (Aggregate)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "linkColor": "multi",
+        "nodeColor": "#7EB26D",
+        "nodeWidth": 20,
+        "nodePadding": 10,
+        "layoutIterations": 32
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "(sum by (source, destination) (  label_replace(    label_replace(      label_replace(        label_replace(          rate(ifHCOutOctets{job=~\"integrations/snmp/spine.*\", ifDescr=~\"ethernet-1/[123]\"}[$__rate_interval]) * 8,          \"source\", \"$1\", \"job\", \"integrations/snmp/(.*)\"        ),        \"destination\", \"leaf1\", \"ifDescr\", \"ethernet-1/1\"      ),      \"destination\", \"leaf2\", \"ifDescr\", \"ethernet-1/2\"    ),    \"destination\", \"leaf3\", \"ifDescr\", \"ethernet-1/3\"  ))) + on(source, destination) (sum by (source, destination) (  label_replace(    label_replace(      label_replace(        label_replace(          rate(ifHCOutOctets{job=~\"integrations/snmp/leaf.*\", ifDescr=~\"ethernet-1/(49|50)\"}[$__rate_interval]) * 8,          \"source\", \"$1\", \"job\", \"integrations/snmp/(.*)\"        ),        \"destination\", \"$1\", \"source\", \"(leaf.*)\"      ),      \"source\", \"spine1\", \"ifDescr\", \"ethernet-1/49\"    ),    \"source\", \"spine2\", \"ifDescr\", \"ethernet-1/50\"  )))",
+          "legendFormat": "",
+          "refId": "A",
+          "editorMode": "code",
+          "range": false,
+          "instant": true,
+          "format": "table"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "indexByName": {
+              "source": 0,
+              "destination": 1,
+              "Value": 2
+            },
+            "renameByName": {}
+          }
+        }
+      ]
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "datasource",
+        "type": "datasource",
+        "label": "Prometheus",
+        "query": "prometheus",
+        "refresh": 1,
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "options": []
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "fiscalYearStartMonth": 0
 }

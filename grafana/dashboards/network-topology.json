@@ -1,15 +1,80 @@
 {
-  "annotations": {
-    "list": []
-  },
+  "uid": "net-o11y-topology",
+  "title": "Network O11y \u2014 Network Overview",
   "description": "Live Clos fabric map with fabric-wide health metrics and a full per-device inventory table.",
+  "tags": [
+    "network-o11y-demo"
+  ],
+  "schemaVersion": 41,
+  "version": 0,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
   "editable": true,
-  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 4331414529052672,
   "links": [],
   "panels": [
     {
+      "id": 1,
+      "type": "row",
+      "title": "About this Dashboard",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"padding:10px 16px;font-size:14px;line-height:1.65;\">\n<p style=\"margin:0 0 8px 0;\">\n  <strong>Network O11y \u2014 Network Overview</strong> shows the live state of a Nokia SR Linux\n  2-spine / 3-leaf Clos fabric. The animated topology map colours each link by utilisation,\n  and the inventory table lists every device's role, interfaces, and current alarm state.\n</p>\n<p style=\"margin:0;\">\n  <strong>Telemetry pipeline:</strong>\n  Interface counters (in/out octets, oper-state) are collected every 60 s by\n  <strong>Grafana Alloy via SNMP v2c</strong> and stored in Prometheus.\n  Device metadata (hostname, role, site) is pulled from <strong>NetBox</strong> and\n  joined as metric labels during ingestion. Syslog events from each switch are\n  forwarded over <strong>UDP 6514</strong> to Alloy's Loki receiver and stored in\n  Grafana Cloud Loki.\n</p>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "10.0.0",
+      "transparent": true
+    },
+    {
+      "id": 3,
+      "type": "row",
+      "title": "",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 4,
+      "type": "andrewbmchugh-flow-panel",
+      "title": "Fabric Map",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
@@ -18,19 +83,18 @@
         "h": 18,
         "w": 16,
         "x": 0,
-        "y": 0
+        "y": 7
       },
-      "id": 1,
       "options": {
         "animationControlEnabled": true,
         "animationsEnabled": true,
         "highlighterEnabled": true,
         "panZoomEnabled": true,
-        "panelConfig": "https://raw.githubusercontent.com/srl-labs/srl-telemetry-lab/refs/heads/flow_panel/configs/grafana/flow_panels/st_topopanel.yml",
-        "siteConfig": "https://raw.githubusercontent.com/srl-labs/srl-telemetry-lab/refs/heads/flow_panel/configs/grafana/flow_panels/siteconfig.yml",
-        "svg": "https://raw.githubusercontent.com/srl-labs/srl-telemetry-lab/refs/heads/flow_panel/configs/grafana/flow_panels/topology.svg",
+        "timeSliderEnabled": true,
         "testDataEnabled": false,
-        "timeSliderEnabled": true
+        "svg": "https://raw.githubusercontent.com/srl-labs/srl-telemetry-lab/refs/heads/flow_panel/configs/grafana/flow_panels/topology.svg",
+        "panelConfig": "https://raw.githubusercontent.com/srl-labs/srl-telemetry-lab/refs/heads/flow_panel/configs/grafana/flow_panels/st_topopanel.yml",
+        "siteConfig": "https://raw.githubusercontent.com/srl-labs/srl-telemetry-lab/refs/heads/flow_panel/configs/grafana/flow_panels/siteconfig.yml"
       },
       "targets": [
         {
@@ -38,51 +102,56 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "label_replace((2 - ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"}), \"iface_short\", \"e$1-$2\", \"ifDescr\", \"ethernet-(\\\\d+)/(\\\\d+)\")",
-          "instant": false,
           "legendFormat": "oper-state:{{source}}:{{iface_short}}",
+          "refId": "A",
+          "editorMode": "code",
           "range": true,
-          "refId": "A"
+          "instant": false
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "label_replace(rate(ifHCOutOctets{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"}[$__rate_interval]) * 8, \"iface_short\", \"e$1-$2\", \"ifDescr\", \"ethernet-(\\\\d+)/(\\\\d+)\")",
-          "instant": false,
           "legendFormat": "{{source}}:{{iface_short}}:out",
+          "refId": "B",
+          "editorMode": "code",
           "range": true,
-          "refId": "B"
+          "instant": false
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "label_replace(rate(ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"}[$__rate_interval]) * 8, \"iface_short\", \"e$1-$2\", \"ifDescr\", \"ethernet-(\\\\d+)/(\\\\d+)\")",
-          "instant": false,
           "legendFormat": "{{source}}:{{iface_short}}:in",
+          "refId": "C",
+          "editorMode": "code",
           "range": true,
-          "refId": "C"
+          "instant": false
         }
-      ],
-      "title": "Fabric Map",
-      "type": "andrewbmchugh-flow-panel"
+      ]
     },
     {
+      "id": 5,
+      "type": "stat",
+      "title": "BGP Sessions Up",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 7
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
+          "unit": "none",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -92,22 +161,13 @@
               }
             ]
           },
-          "unit": "none"
+          "color": {
+            "mode": "fixed"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 16,
-        "y": 0
-      },
-      "id": 2,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -115,6 +175,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -123,27 +187,32 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "count(avg by (source, neighbor_peer_address) (srl_bgp_neighbor_established_transitions{job=\"integrations/gnmi\"}) >= 1)",
-          "instant": true,
           "legendFormat": "Sessions",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "BGP Sessions Up",
-      "type": "stat"
+      ]
     },
     {
+      "id": 6,
+      "type": "stat",
+      "title": "Session Flaps (1h)",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 7
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "unit": "none",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -161,22 +230,13 @@
               }
             ]
           },
-          "unit": "none"
+          "color": {
+            "mode": "thresholds"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 20,
-        "y": 0
-      },
-      "id": 3,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -184,6 +244,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -192,56 +256,52 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "sum(increase(srl_bgp_neighbor_established_transitions{job=\"integrations/gnmi\"}[1h])) or vector(0)",
-          "instant": true,
           "legendFormat": "Flaps",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Session Flaps (1h)",
-      "type": "stat"
+      ]
     },
     {
+      "id": 7,
+      "type": "stat",
+      "title": "IPv4 Active Routes",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
       },
       "gridPos": {
         "h": 3,
         "w": 8,
         "x": 16,
-        "y": 3
+        "y": 10
       },
-      "id": 4,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -249,6 +309,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -257,243 +321,52 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "sum(srl_bgp_neighbor_afi_safi_active_routes{job=\"integrations/gnmi\", afi_safi_afi_safi_name=\"ipv4-unicast\"})",
-          "instant": true,
           "legendFormat": "Routes",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "IPv4 Active Routes",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 16,
-        "y": 6
-      },
-      "id": 5,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
+          "refId": "A",
           "editorMode": "code",
-          "expr": "count(ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"} == 1)",
-          "instant": true,
-          "legendFormat": "Up",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Interfaces Up",
-      "type": "stat"
+      ]
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 20,
-        "y": 6
-      },
-      "id": 6,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "count(ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"} == 2) or vector(0)",
-          "instant": true,
-          "legendFormat": "Down",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Interfaces Down",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "bps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 16,
-        "y": 9
-      },
-      "id": 7,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "sum(rate(ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"}[5m])) * 8",
-          "instant": true,
-          "legendFormat": "bps",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Fabric Rx",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "bps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 20,
-        "y": 9
-      },
       "id": 8,
+      "type": "stat",
+      "title": "Interfaces Up",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 13
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -501,6 +374,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -509,27 +386,97 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
+          "expr": "count(ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"} == 1)",
+          "legendFormat": "Up",
+          "refId": "A",
           "editorMode": "code",
-          "expr": "sum(rate(ifHCOutOctets{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"}[5m])) * 8",
-          "instant": true,
-          "legendFormat": "bps",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Fabric Tx",
-      "type": "stat"
+      ]
     },
     {
+      "id": 9,
+      "type": "stat",
+      "title": "Interfaces Down",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 13
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "fixed"
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
           },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "count(ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"} == 2) or vector(0)",
+          "legendFormat": "Down",
+          "refId": "A",
+          "editorMode": "code",
+          "range": false,
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "stat",
+      "title": "Fabric Rx",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 16
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -539,22 +486,13 @@
               }
             ]
           },
-          "unit": "none"
+          "color": {
+            "mode": "fixed"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 16,
-        "y": 12
-      },
-      "id": 9,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -562,6 +500,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -570,27 +512,154 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
+          "expr": "sum(rate(ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"}[5m])) * 8",
+          "legendFormat": "bps",
+          "refId": "A",
           "editorMode": "code",
-          "expr": "count(count by (source) (srl_cpu_total_average_1{job=\"integrations/gnmi\"}))",
-          "instant": true,
-          "legendFormat": "Devices",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Devices Online",
-      "type": "stat"
+      ]
     },
     {
+      "id": 11,
+      "type": "stat",
+      "title": "Fabric Tx",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 16
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
+          "unit": "bps",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
           },
+          "color": {
+            "mode": "fixed"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "sum(rate(ifHCOutOctets{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"}[5m])) * 8",
+          "legendFormat": "bps",
+          "refId": "A",
+          "editorMode": "code",
+          "range": false,
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "stat",
+      "title": "Devices Online",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 19
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "fixed"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "count(count by (source) (srl_cpu_total_average_1{job=\"integrations/gnmi\"}))",
+          "legendFormat": "Devices",
+          "refId": "A",
+          "editorMode": "code",
+          "range": false,
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "stat",
+      "title": "Avg CPU",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 19
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -608,22 +677,13 @@
               }
             ]
           },
-          "unit": "percent"
+          "color": {
+            "mode": "thresholds"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 3,
-        "w": 4,
-        "x": 20,
-        "y": 12
-      },
-      "id": 10,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -631,6 +691,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -639,27 +703,32 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "avg(avg by (source) (srl_cpu_total_average_1{job=\"integrations/gnmi\"}))",
-          "instant": true,
           "legendFormat": "CPU",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Avg CPU",
-      "type": "stat"
+      ]
     },
     {
+      "id": 14,
+      "type": "stat",
+      "title": "Min Device Uptime",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 16,
+        "y": 22
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
+          "unit": "dtdurations",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -669,22 +738,13 @@
               }
             ]
           },
-          "unit": "dtdurations"
+          "color": {
+            "mode": "fixed"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 3,
-        "w": 8,
-        "x": 16,
-        "y": 15
-      },
-      "id": 11,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -692,6 +752,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -700,34 +764,41 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "min(max by (source) (sysUpTime{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"} / 100))",
-          "instant": true,
           "legendFormat": "Uptime",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Min Device Uptime",
-      "type": "stat"
+      ]
     },
     {
-      "collapsed": false,
+      "id": 15,
+      "type": "row",
+      "title": "Network Devices",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 25
       },
-      "id": 12,
-      "panels": [],
-      "title": "Network Devices",
-      "type": "row"
+      "collapsed": false,
+      "panels": []
     },
     {
+      "id": 16,
+      "type": "table",
+      "title": "Network Devices",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 26
       },
       "fieldConfig": {
         "defaults": {},
@@ -746,9 +817,9 @@
                 "id": "links",
                 "value": [
                   {
-                    "targetBlank": false,
                     "title": "Open Device Details",
-                    "url": "/d/net-o11y-device-details?var-device=${__data.fields.Device}&${__url_time_range}"
+                    "url": "/d/net-o11y-device-details?var-device=${__data.fields.Device}&${__url_time_range}",
+                    "targetBlank": false
                   }
                 ]
               }
@@ -1024,28 +1095,21 @@
           }
         ]
       },
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 19
-      },
-      "id": 13,
       "options": {
-        "cellHeight": "sm",
         "footer": {
+          "show": false,
           "reducer": [
             "sum"
-          ],
-          "show": false
+          ]
         },
         "showHeader": true,
         "sortBy": [
           {
-            "desc": false,
-            "displayName": "Role"
+            "displayName": "Role",
+            "desc": false
           }
-        ]
+        ],
+        "cellHeight": "sm"
       },
       "targets": [
         {
@@ -1053,133 +1117,132 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "count by (source) (avg by (source, neighbor_peer_address) (srl_bgp_neighbor_established_transitions{job=\"integrations/gnmi\"}) >= 1)",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "sum by (source) (increase(srl_bgp_neighbor_established_transitions{job=\"integrations/gnmi\"}[1h]))",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "B",
+          "editorMode": "code",
           "range": false,
-          "refId": "B"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "count by (source) (ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"} == 1)",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "C",
+          "editorMode": "code",
           "range": false,
-          "refId": "C"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "sum by (source) (rate(ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"}[5m]) * 8)",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "D",
+          "editorMode": "code",
           "range": false,
-          "refId": "D"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "sum by (source) (rate(ifHCOutOctets{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"}[5m]) * 8)",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "E",
+          "editorMode": "code",
           "range": false,
-          "refId": "E"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "sum by (source, role) (  label_replace(label_replace(srl_cpu_total_average_1{job=\"integrations/gnmi\"},    \"role\", \"Spine\", \"source\", \"spine.*\"),    \"role\", \"Leaf\",  \"source\", \"leaf.*\"))",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "F",
+          "editorMode": "code",
           "range": false,
-          "refId": "F"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "avg by (source) (srl_cpu_total_average_1{job=\"integrations/gnmi\"})",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "G",
+          "editorMode": "code",
           "range": false,
-          "refId": "G"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "avg by (source) (srl_memory_utilization{job=\"integrations/gnmi\"})",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "H",
+          "editorMode": "code",
           "range": false,
-          "refId": "H"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "group by (source, model, os_ver) (  label_replace(    label_replace(      sysDescr{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"},      \"os_ver\", \"$1\", \"sysDescr\", \"(SRLinux-v[0-9]+[.][0-9]+[.][0-9]+).*\"    ),    \"model\", \"$1\", \"sysDescr\", \"SRLinux-[^ ]+ (7220 IXR-[A-Z0-9]+).*\"  ))",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "I",
+          "editorMode": "code",
           "range": false,
-          "refId": "I"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "max by (source) (sysUpTime{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"} / 100)",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "J",
+          "editorMode": "code",
           "range": false,
-          "refId": "J"
+          "instant": true,
+          "format": "table"
         }
       ],
-      "title": "Network Devices",
       "transformations": [
         {
           "id": "merge",
@@ -1194,20 +1257,24 @@
               "Value #I": true
             },
             "indexByName": {
+              "source": 0,
+              "role": 1,
+              "model": 2,
+              "os_ver": 3,
+              "Value #J": 4,
+              "Value #G": 5,
+              "Value #H": 6,
               "Value #A": 7,
               "Value #B": 8,
               "Value #C": 9,
               "Value #D": 10,
-              "Value #E": 11,
-              "Value #G": 5,
-              "Value #H": 6,
-              "Value #J": 4,
-              "model": 2,
-              "os_ver": 3,
-              "role": 1,
-              "source": 0
+              "Value #E": 11
             },
             "renameByName": {
+              "source": "Device",
+              "role": "Role",
+              "model": "Model",
+              "os_ver": "OS Version",
               "Value #A": "BGP Sessions",
               "Value #B": "BGP Flaps (1h)",
               "Value #C": "Interfaces Up",
@@ -1215,31 +1282,29 @@
               "Value #E": "Tx bps",
               "Value #G": "CPU %",
               "Value #H": "Memory %",
-              "Value #J": "Uptime",
-              "model": "Model",
-              "os_ver": "OS Version",
-              "role": "Role",
-              "source": "Device"
+              "Value #J": "Uptime"
             }
           }
         }
-      ],
-      "type": "table"
+      ]
     },
     {
-      "collapsed": false,
+      "id": 17,
+      "type": "row",
+      "title": "Fabric Event Stream",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 35
       },
-      "id": 14,
-      "panels": [],
-      "title": "Fabric Event Stream",
-      "type": "row"
+      "collapsed": false,
+      "panels": []
     },
     {
+      "id": 18,
+      "type": "logs",
+      "title": "Recent Fabric Events (warn / error / critical)",
       "datasource": {
         "type": "loki",
         "uid": "${loki_datasource}"
@@ -1248,9 +1313,8 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 29
+        "y": 36
       },
-      "id": 15,
       "options": {
         "dedupStrategy": "none",
         "enableLogDetails": true,
@@ -1270,51 +1334,39 @@
           "legendFormat": "",
           "refId": "A"
         }
-      ],
-      "title": "Recent Fabric Events (warn / error / critical)",
-      "type": "logs"
+      ]
     }
-  ],
-  "refresh": "30s",
-  "schemaVersion": 41,
-  "tags": [
-    "network-o11y-demo"
   ],
   "templating": {
     "list": [
       {
-        "current": {},
-        "hide": 0,
-        "includeAll": false,
-        "label": "Prometheus",
-        "multi": false,
         "name": "datasource",
-        "options": [],
+        "type": "datasource",
+        "label": "Prometheus",
         "query": "prometheus",
         "refresh": 1,
-        "type": "datasource"
-      },
-      {
         "current": {},
         "hide": 0,
         "includeAll": false,
-        "label": "Loki",
         "multi": false,
+        "options": []
+      },
+      {
         "name": "loki_datasource",
-        "options": [],
+        "type": "datasource",
+        "label": "Loki",
         "query": "loki",
         "refresh": 1,
-        "type": "datasource"
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "options": []
       }
     ]
   },
-  "time": {
-    "from": "now-1h",
-    "to": "now"
+  "annotations": {
+    "list": []
   },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "Network O11y \u2014 Network Overview",
-  "uid": "net-o11y-topology",
-  "version": 10
+  "fiscalYearStartMonth": 0
 }

@@ -1,45 +1,99 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": {
-          "type": "grafana",
-          "uid": "-- Grafana --"
-        },
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "type": "dashboard"
-      }
-    ]
-  },
+  "uid": "net-o11y-device-details",
+  "title": "Network O11y \u2014 Device Details",
   "description": "Per-device drill-down: CPU, memory, interface traffic, and BGP session health.",
+  "tags": [
+    "network-o11y-demo"
+  ],
+  "schemaVersion": 41,
+  "version": 0,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
   "editable": true,
-  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 62506453917696,
-  "liveNow": false,
+  "links": [],
   "panels": [
     {
+      "id": 1,
+      "type": "row",
+      "title": "About this Dashboard",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"padding:10px 16px;font-size:14px;line-height:1.65;\">\n<p style=\"margin:0 0 8px 0;\">\n  <strong>Network O11y \u2014 Device Details</strong> is a per-device drill-down for a single\n  SR Linux switch. Select a node with the <em>Device</em> variable above. Panels cover\n  CPU and memory utilisation, per-interface traffic rates and errors, BGP neighbour state,\n  and a live syslog event feed from the device.\n</p>\n<p style=\"margin:0;\">\n  <strong>Telemetry pipeline:</strong>\n  CPU, memory, and BGP metrics come from <strong>gNMI streaming telemetry</strong> \u2014 gnmic\n  subscribes to each SR Linux gNMI endpoint, exports the data as Prometheus metrics, and\n  Alloy scrapes them every 30 s. Interface traffic counters are collected separately by\n  Alloy via <strong>SNMP v2c</strong> polling (60 s interval). Syslog events are forwarded\n  by the SR Linux rsyslog daemon over <strong>UDP 6514</strong> directly to Alloy's Loki\n  receiver (ClusterIP), then shipped to Grafana Cloud Loki.\n</p>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "10.0.0",
+      "transparent": true
+    },
+    {
+      "id": 3,
+      "type": "row",
+      "title": "",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "CPU %",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 7
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "max": 100,
-          "min": 0,
+          "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "yellow",
@@ -51,22 +105,13 @@
               }
             ]
           },
-          "unit": "percent"
-        }
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
       },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 0
-      },
-      "id": 1,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -74,46 +119,50 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto"
       },
-      "pluginVersion": "13.0.0-22326976726",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "avg by (source) (srl_cpu_total_average_1{job=\"integrations/gnmi\", source=~\"$device\"})",
-          "instant": true,
           "legendFormat": "CPU",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "CPU %",
-      "type": "stat"
+      ]
     },
     {
+      "id": 5,
+      "type": "stat",
+      "title": "Memory %",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 7
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "max": 100,
-          "min": 0,
+          "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "yellow",
@@ -125,22 +174,13 @@
               }
             ]
           },
-          "unit": "percent"
-        }
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
       },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 6,
-        "y": 0
-      },
-      "id": 2,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -148,44 +188,50 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto"
       },
-      "pluginVersion": "13.0.0-22326976726",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "avg by (source) (srl_memory_utilization{job=\"integrations/gnmi\", source=~\"$device\"})",
-          "instant": true,
           "legendFormat": "Memory",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Memory %",
-      "type": "stat"
+      ]
     },
     {
+      "id": 6,
+      "type": "stat",
+      "title": "BGP Sessions Up",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 7
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "unit": "none",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "red",
-                "value": 0
+                "value": null
               },
               {
                 "color": "green",
@@ -193,22 +239,13 @@
               }
             ]
           },
-          "unit": "none"
-        }
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
       },
-      "gridPos": {
-        "h": 4,
-        "w": 6,
-        "x": 12,
-        "y": 0
-      },
-      "id": 3,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -216,63 +253,60 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto"
       },
-      "pluginVersion": "13.0.0-22326976726",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "count(sum by (source, neighbor_peer_address) (srl_bgp_neighbor_established_transitions{job=\"integrations/gnmi\", source=~\"$device\"}) >= 1) or vector(0)",
-          "instant": true,
           "legendFormat": "Sessions",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "BGP Sessions Up",
-      "type": "stat"
+      ]
     },
     {
+      "id": 7,
+      "type": "stat",
+      "title": "Uptime",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "dtdurations"
-        }
       },
       "gridPos": {
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 0
+        "y": 7
       },
-      "id": 4,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "dtdurations",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "fixed"
+          }
+        },
+        "overrides": []
+      },
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -280,63 +314,60 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto"
       },
-      "pluginVersion": "13.0.0-22326976726",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "max(sysUpTime{job=\"integrations/snmp/$device\"} / 100)",
-          "instant": true,
           "legendFormat": "Uptime",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Uptime",
-      "type": "stat"
+      ]
     },
     {
+      "id": 8,
+      "type": "stat",
+      "title": "Model",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#ccccdc",
-                "value": 0
-              }
-            ]
-          },
-          "unit": ""
-        }
       },
       "gridPos": {
         "h": 3,
         "w": 8,
         "x": 0,
-        "y": 4
+        "y": 11
       },
-      "id": 5,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#ccccdc",
+                "value": null
+              }
+            ]
+          },
+          "color": {
+            "mode": "fixed"
+          }
+        },
+        "overrides": []
+      },
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -344,127 +375,60 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "name",
-        "wideLayout": true
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "name"
       },
-      "pluginVersion": "13.0.0-22326976726",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "group by (source, model) (label_replace(sysDescr{job=\"integrations/snmp/$device\"}, \"model\", \"$1\", \"sysDescr\", \"SRLinux-[^ ]+ (7220 IXR-[A-Z0-9]+).*\"))",
-          "instant": true,
           "legendFormat": "{{model}}",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Model",
-      "type": "stat"
+      ]
     },
     {
+      "id": 9,
+      "type": "stat",
+      "title": "OS Version",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "#ccccdc",
-                "value": 0
-              }
-            ]
-          },
-          "unit": ""
-        }
       },
       "gridPos": {
         "h": 3,
         "w": 8,
         "x": 8,
-        "y": 4
-      },
-      "id": 6,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "name",
-        "wideLayout": true
-      },
-      "pluginVersion": "13.0.0-22326976726",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "group by (source, os_ver) (label_replace(sysDescr{job=\"integrations/snmp/$device\"}, \"os_ver\", \"$1\", \"sysDescr\", \"(SRLinux-v[0-9]+[.][0-9]+[.][0-9]+).*\"))",
-          "instant": true,
-          "legendFormat": "{{os_ver}}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "OS Version",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
+        "y": 11
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
+          "unit": "",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "#ccccdc",
-                "value": 0
+                "value": null
               }
             ]
           },
-          "unit": ""
-        }
+          "color": {
+            "mode": "fixed"
+          }
+        },
+        "overrides": []
       },
-      "gridPos": {
-        "h": 3,
-        "w": 8,
-        "x": 16,
-        "y": 4
-      },
-      "id": 7,
       "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -472,82 +436,126 @@
           "fields": "",
           "values": false
         },
-        "showPercentChange": false,
-        "textMode": "name",
-        "wideLayout": true
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "name"
       },
-      "pluginVersion": "13.0.0-22326976726",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
+          "expr": "group by (source, os_ver) (label_replace(sysDescr{job=\"integrations/snmp/$device\"}, \"os_ver\", \"$1\", \"sysDescr\", \"(SRLinux-v[0-9]+[.][0-9]+[.][0-9]+).*\"))",
+          "legendFormat": "{{os_ver}}",
+          "refId": "A",
           "editorMode": "code",
-          "expr": "group by (source, role) (srl_cpu_total_average_1{job=\"integrations/gnmi\", source=~\"$device\"})",
-          "instant": true,
-          "legendFormat": "{{role}}",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
+      ]
+    },
+    {
+      "id": 10,
+      "type": "stat",
       "title": "Role",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 7
-      },
-      "id": 18,
-      "title": "CPU",
-      "type": "row"
-    },
-    {
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 3,
+        "w": 8,
+        "x": 16,
+        "y": 11
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
+          "unit": "",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#ccccdc",
+                "value": null
+              }
+            ]
           },
+          "color": {
+            "mode": "fixed"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "name"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "group by (source, role) (srl_cpu_total_average_1{job=\"integrations/gnmi\", source=~\"$device\"})",
+          "legendFormat": "{{role}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": false,
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "row",
+      "title": "CPU",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "CPU Utilization %",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 4,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
+            "fillOpacity": 4,
             "showPoints": "never",
-            "showValues": false,
             "spanNulls": true,
             "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
+              "mode": "none",
+              "group": "A"
             }
           },
           "thresholds": {
@@ -555,7 +563,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "yellow",
@@ -566,118 +574,90 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "percent"
-        }
+          }
+        },
+        "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 7
-      },
-      "id": 9,
       "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
         "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
           "calcs": [
             "lastNotNull",
             "max",
             "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
+          ]
         }
       },
-      "pluginVersion": "13.0.0-22326976726",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "avg by (source) (srl_cpu_total_average_1{job=\"integrations/gnmi\", source=~\"$device\"})",
-          "instant": false,
           "legendFormat": "1-min avg",
+          "refId": "A",
+          "editorMode": "code",
           "range": true,
-          "refId": "A"
+          "instant": false
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "avg by (source) (srl_cpu_total_average_5{job=\"integrations/gnmi\", source=~\"$device\"})",
-          "instant": false,
           "legendFormat": "5-min avg",
+          "refId": "B",
+          "editorMode": "code",
           "range": true,
-          "refId": "B"
+          "instant": false
         }
-      ],
-      "title": "CPU Utilization %",
-      "type": "timeseries"
+      ]
     },
     {
-      "collapsed": false,
+      "id": 13,
+      "type": "row",
+      "title": "Memory",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 15
+        "y": 23
       },
-      "id": 19,
-      "title": "Memory",
-      "type": "row"
+      "collapsed": false,
+      "panels": []
     },
     {
+      "id": 14,
+      "type": "timeseries",
+      "title": "Memory Utilization %",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
+          "unit": "percent",
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 4,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
+            "fillOpacity": 4,
             "showPoints": "never",
-            "showValues": false,
             "spanNulls": true,
             "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
+              "mode": "none",
+              "group": "A"
             }
           },
           "thresholds": {
@@ -685,7 +665,7 @@
             "steps": [
               {
                 "color": "green",
-                "value": 0
+                "value": null
               },
               {
                 "color": "yellow",
@@ -696,383 +676,250 @@
                 "value": 85
               }
             ]
-          },
-          "unit": "percent"
-        }
+          }
+        },
+        "overrides": []
       },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 15
-      },
-      "id": 11,
       "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
         "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
           "calcs": [
             "lastNotNull",
             "max",
             "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
+          ]
         }
       },
-      "pluginVersion": "13.0.0-22326976726",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "avg by (source) (srl_memory_utilization{job=\"integrations/gnmi\", source=~\"$device\"})",
-          "instant": false,
           "legendFormat": "Utilization %",
+          "refId": "A",
+          "editorMode": "code",
           "range": true,
-          "refId": "A"
+          "instant": false
         }
-      ],
-      "title": "Memory Utilization %",
-      "type": "timeseries"
+      ]
     },
     {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Memory Free",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 4,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "showValues": false,
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "decbytes"
-        }
       },
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 15
+        "y": 24
       },
-      "id": 12,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "decbytes",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
       "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
         "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
           "calcs": [
             "lastNotNull",
             "max",
             "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
+          ]
         }
       },
-      "pluginVersion": "13.0.0-22326976726",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "avg by (source) (srl_memory_free{job=\"integrations/gnmi\", source=~\"$device\"})",
-          "instant": false,
           "legendFormat": "Free",
+          "refId": "A",
+          "editorMode": "code",
           "range": true,
-          "refId": "A"
+          "instant": false
         }
-      ],
-      "title": "Memory Free",
-      "type": "timeseries"
+      ]
     },
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 23
-      },
-      "id": 20,
+      "id": 16,
+      "type": "row",
       "title": "Interface Traffic",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 4,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "showValues": false,
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "bps"
-        }
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 0,
-        "y": 23
-      },
-      "id": 14,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "13.0.0-22326976726",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "rate(ifHCInOctets{job=\"integrations/snmp/$device\"}[$__rate_interval]) * 8",
-          "instant": false,
-          "legendFormat": "{{ifDescr}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Inbound (bps) \u2014 per interface",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 4,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "showValues": false,
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "bps"
-        }
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 23
-      },
-      "id": 15,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "13.0.0-22326976726",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "rate(ifHCOutOctets{job=\"integrations/snmp/$device\"}[$__rate_interval]) * 8",
-          "instant": false,
-          "legendFormat": "{{ifDescr}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Outbound (bps) \u2014 per interface",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
         "y": 32
       },
-      "id": 21,
-      "title": "Syslog",
-      "type": "row"
+      "collapsed": false,
+      "panels": []
     },
     {
+      "id": 17,
+      "type": "timeseries",
+      "title": "Inbound (bps) \u2014 per interface",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 33
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "rate(ifHCInOctets{job=\"integrations/snmp/$device\"}[$__rate_interval]) * 8",
+          "legendFormat": "{{ifDescr}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Outbound (bps) \u2014 per interface",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 33
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "rate(ifHCOutOctets{job=\"integrations/snmp/$device\"}[$__rate_interval]) * 8",
+          "legendFormat": "{{ifDescr}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "type": "row",
+      "title": "Syslog",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 42
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 20,
+      "type": "logs",
+      "title": "Device Logs \u2014 ${device}",
       "datasource": {
         "type": "loki",
         "uid": "${loki_datasource}"
@@ -1081,23 +928,17 @@
         "h": 12,
         "w": 24,
         "x": 0,
-        "y": 32
+        "y": 43
       },
-      "id": 17,
       "options": {
         "dedupStrategy": "none",
-        "enableInfiniteScrolling": false,
         "enableLogDetails": true,
         "prettifyLogMessage": false,
-        "showControls": false,
-        "showFieldSelector": false,
         "showLabels": false,
         "showTime": true,
         "sortOrder": "Descending",
-        "unwrappedColumns": false,
         "wrapLogMessage": false
       },
-      "pluginVersion": "13.0.0-22326976726",
       "targets": [
         {
           "datasource": {
@@ -1108,104 +949,60 @@
           "legendFormat": "",
           "refId": "A"
         }
-      ],
-      "title": "Device Logs \u2014 ${device}",
-      "type": "logs"
+      ]
     }
-  ],
-  "preload": false,
-  "refresh": "30s",
-  "schemaVersion": 42,
-  "tags": [
-    "network-o11y-demo"
   ],
   "templating": {
     "list": [
       {
-        "allowCustomValue": true,
-        "current": {
-          "text": "",
-          "value": ""
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Prometheus",
-        "multi": false,
         "name": "datasource",
-        "options": [],
+        "type": "datasource",
+        "label": "Prometheus",
         "query": "prometheus",
         "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "type": "datasource"
-      },
-      {
-        "allowCustomValue": true,
-        "current": {
-          "text": "",
-          "value": ""
-        },
+        "current": {},
         "hide": 0,
         "includeAll": false,
-        "label": "Loki",
         "multi": false,
-        "name": "loki_datasource",
-        "options": [],
-        "query": "loki",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "type": "datasource"
+        "options": []
       },
       {
-        "allowCustomValue": true,
-        "current": {
-          "text": "",
-          "value": ""
-        },
+        "name": "loki_datasource",
+        "type": "datasource",
+        "label": "Loki",
+        "query": "loki",
+        "refresh": 1,
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "options": []
+      },
+      {
+        "name": "device",
+        "type": "query",
+        "label": "Device",
         "datasource": {
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Device",
-        "multi": false,
-        "name": "device",
-        "options": [],
         "query": {
           "query": "label_values(srl_cpu_total_average_1{job=\"integrations/gnmi\"}, source)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
         "regex": "",
-        "regexApplyTo": "value",
-        "skipUrlSync": false,
         "sort": 1,
-        "type": "query"
+        "multi": false,
+        "includeAll": false,
+        "current": {},
+        "hide": 0,
+        "options": []
       }
     ]
   },
-  "time": {
-    "from": "now-1h",
-    "to": "now"
+  "annotations": {
+    "list": []
   },
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ]
-  },
-  "timezone": "browser",
-  "title": "Network O11y \u2014 Device Details",
-  "uid": "net-o11y-device-details",
-  "version": 10
+  "fiscalYearStartMonth": 0
 }

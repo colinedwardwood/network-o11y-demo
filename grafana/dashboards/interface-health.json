@@ -1,24 +1,93 @@
 {
-  "annotations": {
-    "list": []
-  },
+  "uid": "net-o11y-iface-health",
+  "title": "Network O11y \u2014 Interface Health",
   "description": "Per-device per-interface SNMP traffic, errors, discards, and oper state.",
+  "tags": [
+    "network-o11y-demo"
+  ],
+  "schemaVersion": 41,
+  "version": 0,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
   "editable": true,
-  "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 4331411848781824,
   "links": [],
   "panels": [
     {
+      "id": 1,
+      "type": "row",
+      "title": "About this Dashboard",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"padding:10px 16px;font-size:14px;line-height:1.65;\">\n<p style=\"margin:0 0 8px 0;\">\n  <strong>Network O11y \u2014 Interface Health</strong> surfaces operational state, throughput,\n  and error counters for every interface on every switch in the fabric. Use the\n  <em>Device</em> and <em>Interface</em> variables to narrow the view.\n</p>\n<p style=\"margin:0;\">\n  <strong>Telemetry pipeline:</strong>\n  All metrics are collected via <strong>SNMP v2c</strong> polling by Grafana Alloy every\n  60 s. Standard IF-MIB OIDs are queried:\n  <code>ifOperStatus</code>, <code>ifHCInOctets</code>, <code>ifHCOutOctets</code>,\n  <code>ifInErrors</code>, <code>ifOutErrors</code>, <code>ifInDiscards</code>,\n  <code>ifOutDiscards</code>. Interface labels (device name, role, site) are enriched from\n  <strong>NetBox</strong> via Alloy's relabelling pipeline before ingestion into Prometheus.\n</p>\n</div>",
+        "mode": "html"
+      },
+      "pluginVersion": "10.0.0",
+      "transparent": true
+    },
+    {
+      "id": 3,
+      "type": "row",
+      "title": "",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Interfaces Up",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 7
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "unit": "none",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -28,22 +97,13 @@
               }
             ]
           },
-          "unit": "none"
+          "color": {
+            "mode": "thresholds"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 0,
-        "y": 0
-      },
-      "id": 1,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -51,6 +111,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -59,56 +123,52 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "count(ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\"} == 1)",
-          "instant": true,
           "legendFormat": "Up",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Interfaces Up",
-      "type": "stat"
+      ]
     },
     {
+      "id": 5,
+      "type": "stat",
+      "title": "Interfaces Down",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 1
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
       },
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 0
+        "y": 7
       },
-      "id": 2,
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -116,6 +176,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -124,88 +188,32 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "count(ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\"} == 2) or vector(0)",
-          "instant": true,
           "legendFormat": "Down",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Interfaces Down",
-      "type": "stat"
+      ]
     },
     {
+      "id": 6,
+      "type": "stat",
+      "title": "SR Linux Devices Polled",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
       },
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 0
-      },
-      "id": 3,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "count(count by (job) (ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\"}))",
-          "instant": true,
-          "legendFormat": "Devices",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "SR Linux Devices Polled",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
+        "y": 7
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "fixed"
-          },
+          "unit": "none",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -215,22 +223,13 @@
               }
             ]
           },
-          "unit": "none"
+          "color": {
+            "mode": "fixed"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 0
-      },
-      "id": 4,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -238,6 +237,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -246,96 +249,93 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
+          "expr": "count(count by (job) (ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\"}))",
+          "legendFormat": "Devices",
+          "refId": "A",
           "editorMode": "code",
-          "expr": "count(ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\"})",
-          "instant": true,
-          "legendFormat": "Interfaces",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Total Interfaces",
-      "type": "stat"
+      ]
     },
     {
+      "id": 7,
+      "type": "stat",
+      "title": "Total Interfaces",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 7
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "unit": "none",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "blue",
                 "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 0.01
-              },
-              {
-                "color": "red",
-                "value": 1
               }
             ]
           },
-          "unit": "reqps"
+          "color": {
+            "mode": "fixed"
+          }
         },
         "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "count(ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\"})",
+          "legendFormat": "Interfaces",
+          "refId": "A",
+          "editorMode": "code",
+          "range": false,
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "Avg Input Error Rate",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
       },
       "gridPos": {
         "h": 4,
         "w": 4,
         "x": 16,
-        "y": 0
-      },
-      "id": 5,
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "avg(rate(ifInErrors{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\"}[$__rate_interval]))",
-          "instant": true,
-          "legendFormat": "Errors/s",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Avg Input Error Rate",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
+        "y": 7
       },
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
+          "unit": "reqps",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -353,22 +353,13 @@
               }
             ]
           },
-          "unit": "reqps"
+          "color": {
+            "mode": "thresholds"
+          }
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 0
-      },
-      "id": 6,
       "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -376,6 +367,10 @@
           "fields": "",
           "values": false
         },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
         "textMode": "auto"
       },
       "targets": [
@@ -384,132 +379,68 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
+          "expr": "avg(rate(ifInErrors{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\"}[$__rate_interval]))",
+          "legendFormat": "Errors/s",
+          "refId": "A",
           "editorMode": "code",
-          "expr": "avg(rate(ifInDiscards{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\"}[$__rate_interval]))",
-          "instant": true,
-          "legendFormat": "Discards/s",
           "range": false,
-          "refId": "A"
+          "instant": true
         }
-      ],
-      "title": "Avg Discard Rate",
-      "type": "stat"
+      ]
     },
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 4
-      },
-      "id": 7,
-      "panels": [],
-      "title": "Traffic",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 4,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          },
-          "unit": "bps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 0,
-        "y": 5
-      },
-      "id": 8,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "rate(ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval]) * 8",
-          "instant": false,
-          "legendFormat": "{{source}} {{ifDescr}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Inbound Traffic (bits/s)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 4,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          },
-          "unit": "bps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 12,
-        "x": 12,
-        "y": 5
-      },
       "id": 9,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
+      "type": "stat",
+      "title": "Avg Discard Rate",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 7
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.01
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto"
       },
       "targets": [
         {
@@ -517,287 +448,427 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
+          "expr": "avg(rate(ifInDiscards{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\"}[$__rate_interval]))",
+          "legendFormat": "Discards/s",
+          "refId": "A",
           "editorMode": "code",
-          "expr": "rate(ifHCOutOctets{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval]) * 8",
-          "instant": false,
-          "legendFormat": "{{source}} {{ifDescr}}",
-          "range": true,
-          "refId": "A"
+          "range": false,
+          "instant": true
         }
-      ],
-      "title": "Outbound Traffic (bits/s)",
-      "type": "timeseries"
+      ]
     },
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 14
-      },
       "id": 10,
-      "panels": [],
-      "title": "Errors & Discards",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 4,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 15
-      },
-      "id": 11,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "rate(ifInErrors{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval])",
-          "instant": false,
-          "legendFormat": "{{source}} {{ifDescr}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Input Errors (per sec)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 4,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 15
-      },
-      "id": 12,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "rate(ifOutErrors{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval])",
-          "instant": false,
-          "legendFormat": "{{source}} {{ifDescr}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Output Errors (per sec)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 4,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 23
-      },
-      "id": 13,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "rate(ifInDiscards{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval])",
-          "instant": false,
-          "legendFormat": "{{source}} {{ifDescr}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Input Discards (per sec)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 4,
-            "lineWidth": 1,
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            }
-          },
-          "unit": "reqps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 23
-      },
-      "id": 14,
-      "options": {
-        "legend": {
-          "calcs": [
-            "lastNotNull",
-            "max",
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "rate(ifOutDiscards{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval])",
-          "instant": false,
-          "legendFormat": "{{source}} {{ifDescr}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Output Discards (per sec)",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
+      "type": "row",
+      "title": "Traffic",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 11
       },
-      "id": 15,
-      "panels": [],
-      "title": "Interface Details",
-      "type": "row"
+      "collapsed": false,
+      "panels": []
     },
     {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Inbound Traffic (bits/s)",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "rate(ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval]) * 8",
+          "legendFormat": "{{source}} {{ifDescr}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Outbound Traffic (bits/s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "rate(ifHCOutOctets{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval]) * 8",
+          "legendFormat": "{{source}} {{ifDescr}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "row",
+      "title": "Errors & Discards",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "Input Errors (per sec)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "rate(ifInErrors{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval])",
+          "legendFormat": "{{source}} {{ifDescr}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Output Errors (per sec)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "rate(ifOutErrors{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval])",
+          "legendFormat": "{{source}} {{ifDescr}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "Input Discards (per sec)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "rate(ifInDiscards{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval])",
+          "legendFormat": "{{source}} {{ifDescr}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "type": "timeseries",
+      "title": "Output Discards (per sec)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "lineWidth": 1,
+            "fillOpacity": 4,
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull",
+            "max",
+            "mean"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "expr": "rate(ifOutDiscards{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[$__rate_interval])",
+          "legendFormat": "{{source}} {{ifDescr}}",
+          "refId": "A",
+          "editorMode": "code",
+          "range": true,
+          "instant": false
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "type": "row",
+      "title": "Interface Details",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 19,
+      "type": "table",
+      "title": "Interface Details",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 39
       },
       "fieldConfig": {
         "defaults": {},
@@ -836,19 +907,19 @@
                 "id": "mappings",
                 "value": [
                   {
+                    "type": "value",
                     "options": {
                       "1": {
+                        "text": "up",
                         "color": "green",
-                        "index": 0,
-                        "text": "up"
+                        "index": 0
                       },
                       "2": {
+                        "text": "down",
                         "color": "red",
-                        "index": 1,
-                        "text": "down"
+                        "index": 1
                       }
-                    },
-                    "type": "value"
+                    }
                   }
                 ]
               },
@@ -890,28 +961,21 @@
           }
         ]
       },
-      "gridPos": {
-        "h": 12,
-        "w": 24,
-        "x": 0,
-        "y": 32
-      },
-      "id": 16,
       "options": {
-        "cellHeight": "sm",
         "footer": {
+          "show": false,
           "reducer": [
             "sum"
-          ],
-          "show": false
+          ]
         },
         "showHeader": true,
         "sortBy": [
           {
-            "desc": false,
-            "displayName": "Device"
+            "displayName": "Device",
+            "desc": false
           }
-        ]
+        ],
+        "cellHeight": "sm"
       },
       "targets": [
         {
@@ -919,42 +983,41 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "max by (source, ifDescr) (ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"})",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "A",
+          "editorMode": "code",
           "range": false,
-          "refId": "A"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "max by (source, ifDescr) (rate(ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[5m]) * 8)",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "B",
+          "editorMode": "code",
           "range": false,
-          "refId": "B"
+          "instant": true,
+          "format": "table"
         },
         {
           "datasource": {
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "max by (source, ifDescr) (rate(ifHCOutOctets{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"}[5m]) * 8)",
-          "format": "table",
-          "instant": true,
           "legendFormat": "",
+          "refId": "C",
+          "editorMode": "code",
           "range": false,
-          "refId": "C"
+          "instant": true,
+          "format": "table"
         }
       ],
-      "title": "Interface Details",
       "transformations": [
         {
           "id": "merge",
@@ -967,75 +1030,76 @@
               "Time": true
             },
             "indexByName": {
+              "source": 0,
+              "ifDescr": 1,
               "Value #A": 2,
               "Value #B": 3,
-              "Value #C": 4,
-              "ifDescr": 1,
-              "source": 0
+              "Value #C": 4
             },
             "renameByName": {
+              "source": "Device",
+              "ifDescr": "Interface",
               "Value #A": "Oper State",
               "Value #B": "In (bps)",
-              "Value #C": "Out (bps)",
-              "ifDescr": "Interface",
-              "source": "Device"
+              "Value #C": "Out (bps)"
             }
           }
         }
-      ],
-      "type": "table"
+      ]
     },
     {
-      "collapsed": false,
+      "id": 20,
+      "type": "row",
+      "title": "Interface Status",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 51
       },
-      "id": 17,
-      "panels": [],
-      "title": "Interface Status",
-      "type": "row"
+      "collapsed": false,
+      "panels": []
     },
     {
+      "id": 21,
+      "type": "state-timeline",
+      "title": "Interface Operational State",
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "fillOpacity": 90,
-            "lineWidth": 0
-          },
-          "mappings": [
-            {
-              "options": {
-                "1": {
-                  "color": "green",
-                  "index": 0,
-                  "text": "up"
-                },
-                "2": {
-                  "color": "red",
-                  "index": 1,
-                  "text": "down"
-                }
-              },
-              "type": "value"
-            }
-          ]
-        },
-        "overrides": []
       },
       "gridPos": {
         "h": 24,
         "w": 24,
         "x": 0,
-        "y": 45
+        "y": 52
       },
-      "id": 18,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "lineWidth": 0,
+            "fillOpacity": 90
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "up",
+                  "color": "green",
+                  "index": 0
+                },
+                "2": {
+                  "text": "down",
+                  "color": "red",
+                  "index": 1
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
       "options": {
         "alignValue": "left",
         "fillGapsWith": null,
@@ -1043,12 +1107,12 @@
           "displayMode": "list",
           "placement": "bottom"
         },
-        "rowHeight": 0.9,
-        "showValue": "auto",
         "tooltip": {
           "mode": "single",
           "sort": "none"
-        }
+        },
+        "rowHeight": 0.9,
+        "showValue": "auto"
       },
       "targets": [
         {
@@ -1056,31 +1120,32 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "editorMode": "code",
           "expr": "max by (source, ifDescr) (ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\", ifDescr=~\"$interface\"})",
-          "instant": false,
           "legendFormat": "{{source}} {{ifDescr}}",
+          "refId": "A",
+          "editorMode": "code",
           "range": true,
-          "refId": "A"
+          "instant": false
         }
-      ],
-      "title": "Interface Operational State",
-      "type": "state-timeline"
+      ]
     },
     {
-      "collapsed": false,
+      "id": 22,
+      "type": "row",
+      "title": "Interface Event Logs",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 69
+        "y": 76
       },
-      "id": 19,
-      "panels": [],
-      "title": "Interface Event Logs",
-      "type": "row"
+      "collapsed": false,
+      "panels": []
     },
     {
+      "id": 23,
+      "type": "logs",
+      "title": "Interface Events \u2014 ${device}",
       "datasource": {
         "type": "loki",
         "uid": "${loki_datasource}"
@@ -1089,9 +1154,8 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 77
       },
-      "id": 20,
       "options": {
         "dedupStrategy": "none",
         "enableLogDetails": true,
@@ -1111,54 +1175,43 @@
           "legendFormat": "",
           "refId": "A"
         }
-      ],
-      "title": "Interface Events \u2014 ${device}",
-      "type": "logs"
+      ]
     }
-  ],
-  "refresh": "30s",
-  "schemaVersion": 41,
-  "tags": [
-    "network-o11y-demo"
   ],
   "templating": {
     "list": [
       {
-        "current": {},
-        "hide": 0,
-        "includeAll": false,
-        "label": "Prometheus",
-        "multi": false,
         "name": "datasource",
-        "options": [],
+        "type": "datasource",
+        "label": "Prometheus",
         "query": "prometheus",
         "refresh": 1,
-        "type": "datasource"
-      },
-      {
         "current": {},
         "hide": 0,
         "includeAll": false,
-        "label": "Loki",
         "multi": false,
-        "name": "loki_datasource",
-        "options": [],
-        "query": "loki",
-        "refresh": 1,
-        "type": "datasource"
+        "options": []
       },
       {
+        "name": "loki_datasource",
+        "type": "datasource",
+        "label": "Loki",
+        "query": "loki",
+        "refresh": 1,
         "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "options": []
+      },
+      {
+        "name": "device",
+        "type": "query",
+        "label": "Device",
         "datasource": {
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "hide": 0,
-        "includeAll": false,
-        "label": "Device",
-        "multi": false,
-        "name": "device",
-        "options": [],
         "query": {
           "query": "label_values(ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\"}, job)",
           "refId": "StandardVariableQuery"
@@ -1166,21 +1219,20 @@
         "refresh": 2,
         "regex": "integrations/snmp/(.*)",
         "sort": 1,
-        "type": "query"
+        "multi": false,
+        "includeAll": false,
+        "current": {},
+        "hide": 0,
+        "options": []
       },
       {
-        "allValue": "[^.]+",
-        "current": {},
+        "name": "interface",
+        "type": "query",
+        "label": "Interface",
         "datasource": {
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "hide": 0,
-        "includeAll": true,
-        "label": "Interface",
-        "multi": true,
-        "name": "interface",
-        "options": [],
         "query": {
           "query": "label_values(ifHCInOctets{job=~\"integrations/snmp/(spine|leaf).*\", job=~\"integrations/snmp/$device\"}, ifDescr)",
           "refId": "StandardVariableQuery"
@@ -1188,17 +1240,17 @@
         "refresh": 2,
         "regex": "^[^.]+$",
         "sort": 1,
-        "type": "query"
+        "multi": true,
+        "includeAll": true,
+        "current": {},
+        "hide": 0,
+        "options": [],
+        "allValue": "[^.]+"
       }
     ]
   },
-  "time": {
-    "from": "now-1h",
-    "to": "now"
+  "annotations": {
+    "list": []
   },
-  "timepicker": {},
-  "timezone": "browser",
-  "title": "Network O11y \u2014 Interface Health",
-  "uid": "net-o11y-iface-health",
-  "version": 6
+  "fiscalYearStartMonth": 0
 }

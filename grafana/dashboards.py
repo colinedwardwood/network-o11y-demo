@@ -82,6 +82,120 @@ MEM_UTIL       = "srl_memory_utilization"
 MEM_PHYSICAL   = "srl_memory_physical"
 
 
+# ── Dashboard header HTML ─────────────────────────────────────────────────────
+# Each dashboard gets a full-width "About this Dashboard" row + HTML text panel
+# injected at the top.  Content lives here so regenerating dashboards.py
+# preserves the headers.  See with_header() below.
+
+HEADER_H = 5   # height of the about text panel in grid units
+
+ABOUT_HTML = {
+    "network-topology": """\
+<div style="padding:10px 16px;font-size:14px;line-height:1.65;">
+<p style="margin:0 0 8px 0;">
+  <strong>Network O11y — Network Overview</strong> shows the live state of a Nokia SR Linux
+  2-spine / 3-leaf Clos fabric. The animated topology map colours each link by utilisation,
+  and the inventory table lists every device's role, interfaces, and current alarm state.
+</p>
+<p style="margin:0;">
+  <strong>Telemetry pipeline:</strong>
+  Interface counters (in/out octets, oper-state) are collected every 60 s by
+  <strong>Grafana Alloy via SNMP v2c</strong> and stored in Prometheus.
+  Device metadata (hostname, role, site) is pulled from <strong>NetBox</strong> and
+  joined as metric labels during ingestion. Syslog events from each switch are
+  forwarded over <strong>UDP 6514</strong> to Alloy's Loki receiver and stored in
+  Grafana Cloud Loki.
+</p>
+</div>""",
+
+    "device-details": """\
+<div style="padding:10px 16px;font-size:14px;line-height:1.65;">
+<p style="margin:0 0 8px 0;">
+  <strong>Network O11y — Device Details</strong> is a per-device drill-down for a single
+  SR Linux switch. Select a node with the <em>Device</em> variable above. Panels cover
+  CPU and memory utilisation, per-interface traffic rates and errors, BGP neighbour state,
+  and a live syslog event feed from the device.
+</p>
+<p style="margin:0;">
+  <strong>Telemetry pipeline:</strong>
+  CPU, memory, and BGP metrics come from <strong>gNMI streaming telemetry</strong> — gnmic
+  subscribes to each SR Linux gNMI endpoint, exports the data as Prometheus metrics, and
+  Alloy scrapes them every 30 s. Interface traffic counters are collected separately by
+  Alloy via <strong>SNMP v2c</strong> polling (60 s interval). Syslog events are forwarded
+  by the SR Linux rsyslog daemon over <strong>UDP 6514</strong> directly to Alloy's Loki
+  receiver (ClusterIP), then shipped to Grafana Cloud Loki.
+</p>
+</div>""",
+
+    "bgp-status": """\
+<div style="padding:10px 16px;font-size:14px;line-height:1.65;">
+<p style="margin:0 0 8px 0;">
+  <strong>Network O11y — BGP Session Status</strong> gives a fabric-wide view of every BGP
+  neighbour relationship across the Clos fabric. Panels show session state, established /
+  reset transition counts, advertised and received route counts, and BGP message-rate
+  activity per peer.
+</p>
+<p style="margin:0;">
+  <strong>Telemetry pipeline:</strong>
+  All metrics come from <strong>gNMI streaming telemetry</strong>. gnmic subscribes to
+  <code>/network-instance[name=default]/protocols/bgp/neighbor/...</code> on each SR Linux
+  node and exports the data as labelled Prometheus metrics. Grafana Alloy scrapes the gnmic
+  <code>/metrics</code> endpoint every 30 s and ships the data to Grafana Cloud.
+</p>
+</div>""",
+
+    "interface-health": """\
+<div style="padding:10px 16px;font-size:14px;line-height:1.65;">
+<p style="margin:0 0 8px 0;">
+  <strong>Network O11y — Interface Health</strong> surfaces operational state, throughput,
+  and error counters for every interface on every switch in the fabric. Use the
+  <em>Device</em> and <em>Interface</em> variables to narrow the view.
+</p>
+<p style="margin:0;">
+  <strong>Telemetry pipeline:</strong>
+  All metrics are collected via <strong>SNMP v2c</strong> polling by Grafana Alloy every
+  60 s. Standard IF-MIB OIDs are queried:
+  <code>ifOperStatus</code>, <code>ifHCInOctets</code>, <code>ifHCOutOctets</code>,
+  <code>ifInErrors</code>, <code>ifOutErrors</code>, <code>ifInDiscards</code>,
+  <code>ifOutDiscards</code>. Interface labels (device name, role, site) are enriched from
+  <strong>NetBox</strong> via Alloy's relabelling pipeline before ingestion into Prometheus.
+</p>
+</div>""",
+
+    "traffic-flows": """\
+<div style="padding:10px 16px;font-size:14px;line-height:1.65;">
+<p style="margin:0 0 8px 0;">
+  <strong>Network O11y — Fabric Traffic</strong> shows per-interface ingress and egress byte
+  and packet rates across the entire fabric, plus fabric-wide aggregate totals. Use the
+  <em>Device</em> variable to focus on a single switch.
+</p>
+<p style="margin:0;">
+  <strong>Telemetry pipeline:</strong>
+  Interface statistics are collected via <strong>gNMI streaming telemetry</strong>. gnmic
+  subscribes to <code>/interface[name=*]/statistics/</code> on each SR Linux node and
+  exports in/out octet and packet counters as Prometheus metrics. Grafana Alloy scrapes
+  the gnmic endpoint every 30 s and forwards data to Grafana Cloud.
+</p>
+</div>""",
+
+    "traffic-sankey": """\
+<div style="padding:10px 16px;font-size:14px;line-height:1.65;">
+<p style="margin:0 0 8px 0;">
+  <strong>Network O11y — Traffic Sankey</strong> visualises directional traffic volumes
+  between the spine and leaf layers of the Clos fabric as an interactive Sankey diagram.
+  Link widths are proportional to egress byte rate.
+</p>
+<p style="margin:0;">
+  <strong>Telemetry pipeline:</strong>
+  Egress byte counters are collected via <strong>SNMP v2c</strong> polling by Grafana Alloy
+  (60 s interval, IF-MIB <code>ifHCOutOctets</code>). PromQL
+  <code>label_replace()</code> expressions map interface names to connected peer devices,
+  enabling the flow-based visualisation.
+</p>
+</div>""",
+}
+
+
 # ── Panel helpers ──────────────────────────────────────────────────────────────
 
 def _ds(kind="prometheus"):
@@ -240,6 +354,58 @@ def text_panel(title, content, x, y, w=24, h=6, mode="markdown"):
         "gridPos": {"h": h, "w": w, "x": x, "y": y},
         "options": {"content": content, "mode": mode},
     }
+
+
+def with_header(panels: list, key: str) -> list:
+    """Prepend an 'About this Dashboard' row + HTML text panel to panels.
+
+    The About row must contain exactly one panel (the text panel).  In Grafana,
+    a non-collapsed row visually owns every panel until the next row panel.  If
+    the first content panel is not a row, we insert a silent separator row right
+    after the text panel so the About row cannot absorb any content panels.
+
+    All existing panels are shifted down accordingly.
+    """
+    html = ABOUT_HTML[key]
+    needs_separator = panels and panels[0].get("type") != "row"
+    # Total shift: row(1) + text(HEADER_H) + optional separator row(1)
+    shift = 1 + HEADER_H + (1 if needs_separator else 0)
+    for p in panels:
+        p["gridPos"]["y"] += shift
+
+    header = [
+        {
+            "id": None, "type": "row",
+            "title": "About this Dashboard",
+            "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+            "collapsed": False, "panels": [],
+        },
+        {
+            "id": None, "type": "text", "title": "",
+            "gridPos": {"h": HEADER_H, "w": 24, "x": 0, "y": 1},
+            "datasource": None,
+            "fieldConfig": {"defaults": {}, "overrides": []},
+            "options": {
+                "code": {
+                    "language": "plaintext",
+                    "showLineNumbers": False,
+                    "showMiniMap": False,
+                },
+                "content": html,
+                "mode": "html",
+            },
+            "pluginVersion": "10.0.0",
+            "transparent": True,
+        },
+    ]
+    if needs_separator:
+        header.append({
+            "id": None, "type": "row",
+            "title": "",
+            "gridPos": {"h": 1, "w": 24, "x": 0, "y": 1 + HEADER_H},
+            "collapsed": False, "panels": [],
+        })
+    return header + panels
 
 
 def flow_panel(title, targets, x, y, w, h, svg_url, panel_config_url, site_config_url=""):
@@ -562,7 +728,7 @@ def dash_interface_health():
     return dashboard(
         uid="net-o11y-iface-health",
         title="Network O11y — Interface Health",
-        panels=panels, variables=variables,
+        panels=with_header(panels, "interface-health"), variables=variables,
         description="Per-device per-interface SNMP traffic, errors, discards, and oper state.",
     )
 
@@ -785,7 +951,7 @@ def dash_bgp_status():
     return dashboard(
         uid="net-o11y-bgp-status",
         title="Network O11y — BGP Session Status",
-        panels=panels, variables=variables,
+        panels=with_header(panels, "bgp-status"), variables=variables,
         description="BGP neighbor health, route counts, and message activity "
                     "from gNMI streaming telemetry across the SR Linux Clos fabric.",
     )
@@ -883,7 +1049,7 @@ def dash_traffic_flows():
     return dashboard(
         uid="net-o11y-traffic-flows",
         title="Network O11y — Fabric Traffic",
-        panels=panels, variables=variables,
+        panels=with_header(panels, "traffic-flows"), variables=variables,
         description="gNMI interface byte/packet rates per SR Linux device and interface.",
     )
 
@@ -1019,7 +1185,7 @@ def dash_device_details():
     return dashboard(
         uid="net-o11y-device-details",
         title="Network O11y — Device Details",
-        panels=panels, variables=variables,
+        panels=with_header(panels, "device-details"), variables=variables,
         description="Per-device drill-down: CPU, memory, interface traffic, and BGP session health.",
     )
 
@@ -1322,7 +1488,7 @@ def dash_network_topology():
     return dashboard(
         uid="net-o11y-topology",
         title="Network O11y — Network Overview",
-        panels=panels, variables=variables,
+        panels=with_header(panels, "network-topology"), variables=variables,
         description="Live Clos fabric map with fabric-wide health metrics and a full per-device inventory table.",
         refresh="30s",
     )
@@ -1529,7 +1695,7 @@ def dash_traffic_sankey():
     return dashboard(
         uid="net-o11y-traffic-sankey",
         title="Network O11y — Traffic Sankey",
-        panels=panels, variables=variables,
+        panels=with_header(panels, "traffic-sankey"), variables=variables,
         description=(
             "Sankey flow diagrams of SR Linux Clos fabric traffic. "
             "Uses label_replace() to map gNMI interface names to connected device names."
