@@ -1,6 +1,7 @@
 ---
-# Network Reconciler — automatically re-applies ARP, MTU, VxLAN FDB, and
-# telemetry port-forwarding fixes whenever Clabbernetes launcher pods restart.
+# Network Reconciler — automatically re-applies ARP, MTU, VxLAN FDB,
+# telemetry port-forwarding, and SR Linux syslog forwarding fixes whenever
+# Clabbernetes launcher pods restart.
 #
 # Why this is needed:
 #   - Kernel ARP settings (`ip link set arp off`) are lost on pod restart.
@@ -10,6 +11,9 @@
 #   - iptables DNAT rules (SNMP UDP 161, gNMI TCP 57400) are lost on restart.
 #     These expose SR Linux telemetry ports to Alloy and gnmic via the
 #     node-telemetry-services.yaml ClusterIP Services.
+#   - SR Linux syslog config (rsyslog remote-server, mgmt0 kernel IP/route) is
+#     lost on pod restart. Syslog targets the Alloy ClusterIP on port 6514/UDP,
+#     which is stable regardless of which node Alloy runs on.
 #
 # How it works:
 #   Polls topology pods every 30 seconds, fingerprints each by UID. When a UID
@@ -266,6 +270,54 @@ data:
       esac
     }
 
+    # Push syslog remote-server config to one SR Linux node and restart rsyslog.
+    # Mirrors k8s/telemetry/srl-syslog-config.yaml but runs inline so the
+    # reconciler re-applies it automatically on every SR Linux pod restart.
+    #
+    # Steps (identical to the one-shot Job):
+    #   1. Extract gnmic binary from the SR Linux container.
+    #   2. Configure the syslog remote-server via gNMI (UDP port 6514 → Alloy ClusterIP).
+    #   3. Add 172.20.20.250/32 to mgmt0 so rsyslog can route outbound packets.
+    #   4. Add a default route via 172.20.20.1 on mgmt0.
+    #   5. Kill and restart rsyslog to pick up the new config immediately.
+    #
+    # The Alloy ClusterIP is stable for the life of the Service — no periodic
+    # re-check is needed when Alloy reschedules to a different node.
+    fix_srl_syslog() {
+      pod="$1"; node="$2"
+      ip=$(kubectl get svc -n "$NAMESPACE" alloy \
+        -o jsonpath='{.spec.clusterIP}' 2>/dev/null)
+      [ -z "$ip" ] && return
+      # Double-quoted sh -c so ${ip} is expanded here (local var → remote literal).
+      # Remote shell vars use \$ to survive local expansion.
+      kubectl exec -n "$NAMESPACE" "$pod" -- sh -c "
+        DOCK='docker --host unix:///run/docker.sock'
+        CTR=\$(\$DOCK ps -q | head -1)
+        [ -z \"\$CTR\" ] && exit 0
+        \$DOCK cp \"\$CTR\":/usr/local/bin/gnmic /tmp/gnmic-srl 2>/dev/null || exit 0
+        chmod +x /tmp/gnmic-srl
+        GNMI_PORT=\$(\$DOCK inspect \
+          --format '{{range \$k, \$v := .NetworkSettings.Ports}}{{if eq \$k \"57400/tcp\"}}{{(index \$v 0).HostPort}}{{end}}{{end}}' \
+          \"\$CTR\" 2>/dev/null)
+        [ -z \"\$GNMI_PORT\" ] && exit 0
+        printf '%s' '{\"transport\":\"udp\",\"remote-port\":6514,\"subsystem\":[{\"subsystem-name\":\"bgp\",\"priority\":{\"match-above\":\"informational\"}},{\"subsystem-name\":\"lldp\",\"priority\":{\"match-above\":\"informational\"}},{\"subsystem-name\":\"mgmt\",\"priority\":{\"match-above\":\"informational\"}},{\"subsystem-name\":\"platform\",\"priority\":{\"match-above\":\"informational\"}},{\"subsystem-name\":\"netinst\",\"priority\":{\"match-above\":\"informational\"}},{\"subsystem-name\":\"app\",\"priority\":{\"match-above\":\"informational\"}},{\"subsystem-name\":\"fib\",\"priority\":{\"match-above\":\"informational\"}},{\"subsystem-name\":\"lag\",\"priority\":{\"match-above\":\"informational\"}}]}' \
+          > /tmp/syslog.json
+        /tmp/gnmic-srl \
+          --address \"localhost:\${GNMI_PORT}\" \
+          --username admin --password NokiaSrl1! \
+          --skip-verify --encoding json_ietf \
+          set \
+          --update-path '/system/logging/remote-server[host=${ip}]' \
+          --update-file /tmp/syslog.json 2>/dev/null || true
+        \$DOCK exec \"\$CTR\" ip addr add 172.20.20.250/32 dev mgmt0 2>/dev/null || true
+        \$DOCK exec \"\$CTR\" ip route add default via 172.20.20.1 dev mgmt0 onlink 2>/dev/null || true
+        \$DOCK exec \"\$CTR\" pkill -9 rsyslog 2>/dev/null || true
+        sleep 2
+        \$DOCK exec \"\$CTR\" rm -f /var/run/srlinux/rsyslogd.pid
+        \$DOCK exec \"\$CTR\" rsyslogd -i /var/run/srlinux/rsyslogd.pid -f /etc/rsyslog.conf 2>/dev/null || true
+      " 2>/dev/null || true
+    }
+
     log "Network reconciler starting. Poll interval: ${POLL_INTERVAL}s"
 
     while true; do
@@ -298,6 +350,7 @@ data:
               expose_telemetry_ports "$pod" "$node" && log "  SNMP+gNMI DNAT: OK"
               sys_ip=$(node_system_ip "$node")
               configure_srl_telemetry "$pod" "$node" "$sys_ip" && log "  SNMP+sFlow config: OK"
+              fix_srl_syslog "$pod" "$node" && log "  syslog config: OK"
               ;;
           esac
           set_uid "$node" "$uid"

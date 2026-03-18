@@ -124,6 +124,9 @@ spec:
           emptyDir: {}
 
 ---
+# ClusterIP service for Alloy. SR Linux syslog (UDP 6514) targets this ClusterIP
+# directly — kube-proxy DNAT routes it to the Alloy pod regardless of which node
+# it runs on, making the destination stable across Alloy pod reschedules.
 apiVersion: v1
 kind: Service
 metadata:
@@ -147,27 +150,3 @@ spec:
       port: 6514
       protocol: UDP
       targetPort: 6514
----
-# NodePort service for syslog: SR Linux pods can reach their own node's IP
-# (pod-to-pod cross-node traffic is blocked in this EKS cluster) but can
-# reach the node IP itself. NodePort 30614 means kube-proxy on each node
-# forwards SR Linux syslog to Alloy regardless of which node it runs on.
-# UDP is used because rsyslog's legacy @@ TCP syntax uses newline-delimiter
-# framing which is incompatible with Alloy's octet-counting TCP parser.
-apiVersion: v1
-kind: Service
-metadata:
-  name: alloy-syslog
-  namespace: network-lab
-  labels:
-    app: alloy
-spec:
-  type: NodePort
-  selector:
-    app: alloy
-  ports:
-    - name: syslog-udp
-      port: 6514
-      protocol: UDP
-      targetPort: 6514
-      nodePort: 30614
