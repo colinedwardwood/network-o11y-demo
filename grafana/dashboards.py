@@ -1822,7 +1822,7 @@ bash scripts/access.sh   # auto-detects SSM — no SSH key needed</pre>
       <span style="color:#aaa; font-size:12px;">
         Then navigate to
         <a href="http://localhost:8080" target="_blank" style="color:#6e9fff;">http://localhost:8080</a>
-        (login: <code>admin</code> / password from <code>k8s/netbox/netbox-secret.yaml</code>).
+        (login: <code>admin</code> / <code>admin</code>).
         Show the device list — every device has a role (<code>spine</code>, <code>leaf</code>, <code>client</code>),
         a site, and a platform. These labels flow automatically into every Prometheus metric via the
         netbox-sd adapter — no manual tagging in the collector.
