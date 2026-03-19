@@ -116,8 +116,8 @@ data:
       targets         = [{"__address__" = "gnmic.network-lab.svc.cluster.local:9273"}]
       forward_to      = [prometheus.relabel.netbox_enrich_gnmi.receiver]
       job_name        = "integrations/gnmi"
-      scrape_interval = "30s"
-      scrape_timeout  = "25s"
+      scrape_interval = "10s"
+      scrape_timeout  = "9s"
     }
 
     // ─── 3a. NetBox enrichment — SNMP metrics ─────────────────────────────────────
@@ -210,6 +210,25 @@ data:
         source_labels = ["__name__"]
         regex         = "gnmi_interface_stats_srl_nokia_interfaces_interface_statistics_(.*)"
         replacement   = "srl_iface_$1"
+        target_label  = "__name__"
+      }
+
+      // ── oper-state / admin-state from the on-change subscription ─────────────
+      // gnmic names these gnmi_interface_oper_srl_nokia_interfaces_interface_oper_state
+      // (prefix=gnmi, subscription=interface_oper, YANG module path, leaf).
+      // The event-processor in gnmic-config converts the string enum to 1/0 first.
+
+      rule {
+        source_labels = ["__name__"]
+        regex         = "gnmi_interface_oper_srl_nokia_interfaces_interface_oper_state"
+        replacement   = "srl_iface_oper_state"
+        target_label  = "__name__"
+      }
+
+      rule {
+        source_labels = ["__name__"]
+        regex         = "gnmi_interface_oper_srl_nokia_interfaces_interface_admin_state"
+        replacement   = "srl_iface_admin_state"
         target_label  = "__name__"
       }
 

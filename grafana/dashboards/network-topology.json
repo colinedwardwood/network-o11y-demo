@@ -102,7 +102,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "label_replace((2 - ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"}), \"iface_short\", \"e$1-$2\", \"ifDescr\", \"ethernet-(\\\\d+)/(\\\\d+)\")",
+          "expr": "label_replace(srl_iface_oper_state{job=\"integrations/gnmi\", source!=\"\"}, \"iface_short\", \"e$1-$2\", \"name\", \"ethernet-(\\d+)/(\\d+)\")",
           "legendFormat": "oper-state:{{source}}:{{iface_short}}",
           "refId": "A",
           "editorMode": "code",
@@ -386,7 +386,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "count(ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"} == 1)",
+          "expr": "count(srl_iface_oper_state{job=\"integrations/gnmi\", source!=\"\"} == 1)",
           "legendFormat": "Up",
           "refId": "A",
           "editorMode": "code",
@@ -451,7 +451,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "count(ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"} == 2) or vector(0)",
+          "expr": "count(srl_iface_oper_state{job=\"integrations/gnmi\", source!=\"\"} == 0) or vector(0)",
           "legendFormat": "Down",
           "refId": "A",
           "editorMode": "code",
@@ -1143,7 +1143,7 @@
             "type": "prometheus",
             "uid": "${datasource}"
           },
-          "expr": "count by (source) (ifOperStatus{job=~\"integrations/snmp/(spine|leaf).*\", source!=\"\"} == 1)",
+          "expr": "count by (source) (srl_iface_oper_state{job=\"integrations/gnmi\", source!=\"\"} == 1)",
           "legendFormat": "",
           "refId": "C",
           "editorMode": "code",

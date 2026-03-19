@@ -39,10 +39,18 @@ data:
       interface_stats:
         paths:
           - /interface[name=*]/statistics
-          - /interface[name=*]/oper-state
-          - /interface[name=*]/admin-state
         stream-mode: sample
         sample-interval: 30s
+
+      # on-change pushes updates the moment a link flaps, so the Fabric Map
+      # dot color changes in ~10 s (Alloy scrape interval) instead of ~60 s
+      # (SNMP poll).  The event-processor below converts the string enum
+      # ("up"/"down") to a Prometheus-compatible float (1.0 / 0.0).
+      interface_oper:
+        paths:
+          - /interface[name=*]/oper-state
+          - /interface[name=*]/admin-state
+        stream-mode: on-change
 
       bgp_neighbors:
         paths:
@@ -57,6 +65,34 @@ data:
         stream-mode: sample
         sample-interval: 30s
 
+    processors:
+      # SR Linux returns oper-state / admin-state as string enums via JSON IETF
+      # encoding.  Prometheus only stores float64, so gnmic silently drops string
+      # values unless we convert them first.  This processor matches any event
+      # whose value-name ends in "oper-state" or "admin-state" and maps the
+      # well-known enum strings to 1.0 (up/enable) or 0.0 (everything else).
+      convert_oper_state:
+        event-strings:
+          value-names:
+            - ".*oper.state$"
+            - ".*admin.state$"
+          transforms:
+            - replace:
+                apply-on: "value"
+                keep: true
+                old: "^up$"
+                new: "1"
+            - replace:
+                apply-on: "value"
+                keep: true
+                old: "^enable$"
+                new: "1"
+            - replace:
+                apply-on: "value"
+                keep: true
+                old: "^(down|disable|testing|unknown|dormant|not-present|lower-layer-down)$"
+                new: "0"
+
     outputs:
       prometheus:
         type: prometheus
@@ -64,3 +100,5 @@ data:
         path: /metrics
         metric-prefix: gnmi
         append-subscription-name: true
+        event-processors:
+          - convert_oper_state
