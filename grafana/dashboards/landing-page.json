@@ -100,7 +100,7 @@
     },
     {
       "id": 5,
-      "type": "volkovlabs-button-panel",
+      "type": "volkovlabs-form-panel",
       "title": "",
       "gridPos": {
         "h": 5,
@@ -115,29 +115,49 @@
         "overrides": []
       },
       "options": {
-        "buttons": [
+        "sync": false,
+        "elements": [
           {
-            "text": "Stop Spine 1",
+            "uid": "stop-spine-1",
+            "id": "stop-spine-1",
+            "title": "",
+            "type": "button",
+            "buttonLabel": "Stop Spine 1",
+            "customCode": "fetch('${controller_url}/spine/spine1/stop', {method: 'POST'})  .then(function(r) { return r.json(); })  .then(function() { context.grafana.notifySuccess(['Stop Spine 1', 'Command sent successfully.']); })  .catch(function(e) { context.grafana.notifyError(['Stop Spine 1', 'Error: ' + e.message]); });",
+            "icon": "",
             "size": "lg",
             "variant": "destructive",
-            "icon": "",
-            "customCode": "",
-            "request": {
-              "datasource": "",
-              "url": "${controller_url}/spine/spine1/stop",
-              "method": "POST",
-              "contentType": "application/json",
-              "headers": [],
-              "body": ""
-            }
+            "foregroundColor": "",
+            "backgroundColor": "",
+            "show": "form",
+            "labelWidth": 10,
+            "width": null,
+            "tooltip": "",
+            "section": "",
+            "unit": "",
+            "value": ""
           }
         ],
-        "orientation": "center"
+        "submit": {
+          "confirm": false
+        },
+        "resetAction": {
+          "confirm": false
+        },
+        "saveDefault": {
+          "confirm": false
+        },
+        "layout": {
+          "variant": "single"
+        },
+        "buttonGroup": {
+          "orientation": "center"
+        }
       }
     },
     {
       "id": 6,
-      "type": "volkovlabs-button-panel",
+      "type": "volkovlabs-form-panel",
       "title": "",
       "gridPos": {
         "h": 5,
@@ -152,24 +172,44 @@
         "overrides": []
       },
       "options": {
-        "buttons": [
+        "sync": false,
+        "elements": [
           {
-            "text": "Start Spine 1",
+            "uid": "start-spine-1",
+            "id": "start-spine-1",
+            "title": "",
+            "type": "button",
+            "buttonLabel": "Start Spine 1",
+            "customCode": "fetch('${controller_url}/spine/spine1/start', {method: 'POST'})  .then(function(r) { return r.json(); })  .then(function() { context.grafana.notifySuccess(['Start Spine 1', 'Command sent successfully.']); })  .catch(function(e) { context.grafana.notifyError(['Start Spine 1', 'Error: ' + e.message]); });",
+            "icon": "",
             "size": "lg",
             "variant": "primary",
-            "icon": "",
-            "customCode": "",
-            "request": {
-              "datasource": "",
-              "url": "${controller_url}/spine/spine1/start",
-              "method": "POST",
-              "contentType": "application/json",
-              "headers": [],
-              "body": ""
-            }
+            "foregroundColor": "",
+            "backgroundColor": "",
+            "show": "form",
+            "labelWidth": 10,
+            "width": null,
+            "tooltip": "",
+            "section": "",
+            "unit": "",
+            "value": ""
           }
         ],
-        "orientation": "center"
+        "submit": {
+          "confirm": false
+        },
+        "resetAction": {
+          "confirm": false
+        },
+        "saveDefault": {
+          "confirm": false
+        },
+        "layout": {
+          "variant": "single"
+        },
+        "buttonGroup": {
+          "orientation": "center"
+        }
       }
     }
   ],

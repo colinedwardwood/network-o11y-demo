@@ -357,40 +357,61 @@ def text_panel(title, content, x, y, w=24, h=6, mode="markdown"):
 
 
 def button_panel(title, button_text, url, x, y, w=5, h=5, variant="primary"):
-    """volkovlabs-button-panel — clickable HTTP-request button.
+    """volkovlabs-form-panel — custom button using Business Forms.
 
-    Requires the 'Business Button Panel' plugin (volkovlabs-button-panel) to be
-    installed on the Grafana instance.  The button sends a POST request to `url`
-    when clicked.  `url` may contain Grafana variable interpolation, e.g.
-    '${controller_url}/spine/spine1/stop'.
+    Requires the 'Business Forms' plugin (volkovlabs-form-panel) to be
+    installed on the Grafana instance.  On click the button executes
+    customCode which uses fetch() to POST to `url`.  Grafana interpolates
+    dashboard variables (e.g. ${controller_url}) inside customCode before
+    the JavaScript runs, so the URL is resolved at click time.
+
+    Uses context.grafana.notifySuccess / notifyError for in-dashboard feedback.
     """
+    # Grafana interpolates ${...} variables in option strings before rendering,
+    # so the URL reference is resolved at runtime in the browser.
+    custom_code = (
+        f"fetch('{url}', {{method: 'POST'}})"
+        f"  .then(function(r) {{ return r.json(); }})"
+        f"  .then(function() {{ context.grafana.notifySuccess(['{button_text}', 'Command sent successfully.']); }})"
+        f"  .catch(function(e) {{ context.grafana.notifyError(['{button_text}', 'Error: ' + e.message]); }});"
+    )
     return {
         "id": None,
-        "type": "volkovlabs-button-panel",
+        "type": "volkovlabs-form-panel",
         "title": title,
         "gridPos": {"h": h, "w": w, "x": x, "y": y},
         "datasource": None,
         "targets": [],
         "fieldConfig": {"defaults": {}, "overrides": []},
         "options": {
-            "buttons": [
+            "sync": False,
+            "elements": [
                 {
-                    "text": button_text,
+                    "uid": button_text.lower().replace(" ", "-"),
+                    "id": button_text.lower().replace(" ", "-"),
+                    "title": "",
+                    "type": "button",
+                    "buttonLabel": button_text,
+                    "customCode": custom_code,
+                    "icon": "",
                     "size": "lg",
                     "variant": variant,
-                    "icon": "",
-                    "customCode": "",
-                    "request": {
-                        "datasource": "",
-                        "url": url,
-                        "method": "POST",
-                        "contentType": "application/json",
-                        "headers": [],
-                        "body": "",
-                    },
+                    "foregroundColor": "",
+                    "backgroundColor": "",
+                    "show": "form",
+                    "labelWidth": 10,
+                    "width": None,
+                    "tooltip": "",
+                    "section": "",
+                    "unit": "",
+                    "value": "",
                 }
             ],
-            "orientation": "center",
+            "submit": {"confirm": False},
+            "resetAction": {"confirm": False},
+            "saveDefault": {"confirm": False},
+            "layout": {"variant": "single"},
+            "buttonGroup": {"orientation": "center"},
         },
     }
 

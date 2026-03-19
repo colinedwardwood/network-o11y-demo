@@ -57,7 +57,7 @@ ok "Token valid (HTTP $HTTP)"
 # Grafana Cloud exposes POST /api/plugins/{id}/install for admin tokens.
 # This is a no-op if the plugin is already installed.
 
-REQUIRED_PLUGINS=("volkovlabs-button-panel")
+REQUIRED_PLUGINS=("volkovlabs-form-panel")
 
 info "Checking required plugins..."
 for PLUGIN_ID in "${REQUIRED_PLUGINS[@]}"; do
