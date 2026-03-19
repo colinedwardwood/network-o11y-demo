@@ -1345,7 +1345,11 @@
         "label": "Prometheus",
         "query": "prometheus",
         "refresh": 1,
-        "current": {},
+        "current": {
+          "selected": true,
+          "text": "grafanacloud-networko11ydev-prom",
+          "value": "grafanacloud-networko11ydev-prom"
+        },
         "hide": 0,
         "includeAll": false,
         "multi": false,
@@ -1357,7 +1361,11 @@
         "label": "Loki",
         "query": "loki",
         "refresh": 1,
-        "current": {},
+        "current": {
+          "selected": true,
+          "text": "grafanacloud-networko11ydev-logs",
+          "value": "grafanacloud-networko11ydev-logs"
+        },
         "hide": 0,
         "includeAll": false,
         "multi": false,

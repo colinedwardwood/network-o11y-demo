@@ -564,10 +564,23 @@ def _loki(query, legend="", ref="A"):
 
 # ── Variable helpers ──────────────────────────────────────────────────────────
 
+_DS_DEFAULTS = {
+    "prometheus": "grafanacloud-networko11ydev-prom",
+    "loki":       "grafanacloud-networko11ydev-logs",
+}
+
+
 def ds_var(name="datasource", label="Prometheus", kind="prometheus"):
+    default_uid = _DS_DEFAULTS.get(kind, "")
     return {
         "name": name, "type": "datasource", "label": label,
-        "query": kind, "refresh": 1, "current": {}, "hide": 0,
+        "query": kind, "refresh": 1,
+        "current": {
+            "selected": True,
+            "text": default_uid,
+            "value": default_uid,
+        },
+        "hide": 0,
         "includeAll": False, "multi": False, "options": [],
     }
 
