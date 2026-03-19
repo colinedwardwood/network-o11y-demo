@@ -219,10 +219,10 @@
         "name": "controller_url",
         "type": "constant",
         "label": "Spine Controller URL",
-        "query": "http://aef4c359b80bf4022a6a5fab468444a0-170406140.eu-west-1.elb.amazonaws.com",
+        "query": "https://v44irm5g5m.execute-api.eu-west-1.amazonaws.com",
         "current": {
-          "value": "http://aef4c359b80bf4022a6a5fab468444a0-170406140.eu-west-1.elb.amazonaws.com",
-          "text": "http://aef4c359b80bf4022a6a5fab468444a0-170406140.eu-west-1.elb.amazonaws.com",
+          "value": "https://v44irm5g5m.execute-api.eu-west-1.amazonaws.com",
+          "text": "https://v44irm5g5m.execute-api.eu-west-1.amazonaws.com",
           "selected": false
         },
         "hide": 0,
