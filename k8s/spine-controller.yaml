@@ -1,0 +1,199 @@
+---
+# Spine Controller — HTTP service that scales SR Linux spine deployments on demand.
+#
+# Used by the Grafana "00 Network O11y Landing Page" button panels so a presenter
+# can trigger a spine failure and watch BGP reconvergence without leaving Grafana.
+#
+# The controller runs inside the cluster using the Kubernetes Python client
+# (in-cluster config) and holds a namespaced Role limited to patching
+# deployments/scale in network-lab only.
+#
+# After applying, get the LoadBalancer hostname with:
+#   kubectl get svc spine-controller -n network-lab -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+# Then set that as the controller_url variable in the landing-page dashboard.
+#
+# Optional auth: set CONTROLLER_TOKEN env var to a shared secret.
+# The Grafana button request must then include: Authorization: Bearer <token>
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spine-controller-app
+  namespace: network-lab
+data:
+  server.py: |
+    import os
+    from functools import wraps
+    from flask import Flask, jsonify, request
+    from kubernetes import client, config
+
+    config.load_incluster_config()
+    apps_v1 = client.AppsV1Api()
+
+    app = Flask(__name__)
+
+    ALLOWED_SPINES = {"spine1", "spine2"}
+    NAMESPACE = os.getenv("SPINE_NAMESPACE", "network-lab")
+    TOKEN = os.getenv("CONTROLLER_TOKEN", "")
+
+
+    def require_token(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            if TOKEN:
+                auth = request.headers.get("Authorization", "")
+                if auth != f"Bearer {TOKEN}":
+                    return jsonify({"error": "unauthorized"}), 401
+            return f(*args, **kwargs)
+        return decorated
+
+
+    @app.after_request
+    def add_cors(response):
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        return response
+
+
+    @app.route("/spine/<name>/stop", methods=["POST", "OPTIONS"])
+    @require_token
+    def stop_spine(name):
+        if request.method == "OPTIONS":
+            return jsonify({}), 200
+        if name not in ALLOWED_SPINES:
+            return jsonify({"error": "invalid spine name"}), 400
+        try:
+            apps_v1.patch_namespaced_deployment_scale(
+                name, NAMESPACE, {"spec": {"replicas": 0}}
+            )
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+        return jsonify({"status": "stopped", "spine": name})
+
+
+    @app.route("/spine/<name>/start", methods=["POST", "OPTIONS"])
+    @require_token
+    def start_spine(name):
+        if request.method == "OPTIONS":
+            return jsonify({}), 200
+        if name not in ALLOWED_SPINES:
+            return jsonify({"error": "invalid spine name"}), 400
+        try:
+            apps_v1.patch_namespaced_deployment_scale(
+                name, NAMESPACE, {"spec": {"replicas": 1}}
+            )
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+        return jsonify({"status": "started", "spine": name})
+
+
+    @app.route("/health")
+    def health():
+        return jsonify({"ok": True})
+
+
+    if __name__ == "__main__":
+        app.run(host="0.0.0.0", port=8080)
+
+  entrypoint.sh: |
+    #!/bin/sh
+    set -e
+    pip install --quiet --no-cache-dir flask kubernetes
+    exec python /app/server.py
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spine-controller
+  namespace: network-lab
+---
+# Namespaced Role — only permits patching deployment scale in network-lab.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: spine-controller
+  namespace: network-lab
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: spine-controller
+  namespace: network-lab
+subjects:
+  - kind: ServiceAccount
+    name: spine-controller
+    namespace: network-lab
+roleRef:
+  kind: Role
+  name: spine-controller
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spine-controller
+  namespace: network-lab
+  labels:
+    app: spine-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spine-controller
+  template:
+    metadata:
+      labels:
+        app: spine-controller
+    spec:
+      serviceAccountName: spine-controller
+      containers:
+        - name: server
+          image: python:3.12-alpine
+          command: ["/bin/sh", "/app/entrypoint.sh"]
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPINE_NAMESPACE
+              value: network-lab
+            - name: CONTROLLER_TOKEN
+              value: ""   # set to a shared secret to enable bearer-token auth
+          volumeMounts:
+            - name: app
+              mountPath: /app
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 40
+            periodSeconds: 5
+      volumes:
+        - name: app
+          configMap:
+            name: spine-controller-app
+            defaultMode: 0755
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spine-controller
+  namespace: network-lab
+  labels:
+    app: spine-controller
+spec:
+  type: LoadBalancer
+  selector:
+    app: spine-controller
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP

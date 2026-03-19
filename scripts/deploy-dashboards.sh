@@ -53,6 +53,35 @@ HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
   || fail "Unexpected HTTP $HTTP from $BASE/api/folders — check token and URL"
 ok "Token valid (HTTP $HTTP)"
 
+# ─── Ensure required plugins are installed ───────────────────────────────────
+# Grafana Cloud exposes POST /api/plugins/{id}/install for admin tokens.
+# This is a no-op if the plugin is already installed.
+
+REQUIRED_PLUGINS=("volkovlabs-button-panel")
+
+info "Checking required plugins..."
+for PLUGIN_ID in "${REQUIRED_PLUGINS[@]}"; do
+  STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+    -H "Authorization: Bearer $TOKEN" \
+    "$BASE/api/plugins/$PLUGIN_ID")
+
+  if [[ "$STATUS_CODE" == "200" ]]; then
+    ok "Plugin already installed: $PLUGIN_ID"
+  else
+    INSTALL_RESP=$(curl -s -w "\n%{http_code}" -X POST \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "Content-Type: application/json" \
+      "$BASE/api/plugins/$PLUGIN_ID/install")
+    INSTALL_CODE=$(echo "$INSTALL_RESP" | tail -1)
+    if [[ "$INSTALL_CODE" == "200" || "$INSTALL_CODE" == "201" ]]; then
+      ok "Plugin installed: $PLUGIN_ID"
+    else
+      echo "  WARNING: Could not install $PLUGIN_ID (HTTP $INSTALL_CODE)." >&2
+      echo "           Install it manually: Grafana UI → Administration → Plugins → '$PLUGIN_ID'" >&2
+    fi
+  fi
+done
+
 # ─── Create folder ────────────────────────────────────────────────────────────
 
 info "Attempting to create folder '$FOLDER_TITLE' (uid: $FOLDER_UID)..."

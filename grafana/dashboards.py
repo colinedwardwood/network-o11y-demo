@@ -356,6 +356,45 @@ def text_panel(title, content, x, y, w=24, h=6, mode="markdown"):
     }
 
 
+def button_panel(title, button_text, url, x, y, w=5, h=5, variant="primary"):
+    """volkovlabs-button-panel — clickable HTTP-request button.
+
+    Requires the 'Business Button Panel' plugin (volkovlabs-button-panel) to be
+    installed on the Grafana instance.  The button sends a POST request to `url`
+    when clicked.  `url` may contain Grafana variable interpolation, e.g.
+    '${controller_url}/spine/spine1/stop'.
+    """
+    return {
+        "id": None,
+        "type": "volkovlabs-button-panel",
+        "title": title,
+        "gridPos": {"h": h, "w": w, "x": x, "y": y},
+        "datasource": None,
+        "targets": [],
+        "fieldConfig": {"defaults": {}, "overrides": []},
+        "options": {
+            "buttons": [
+                {
+                    "text": button_text,
+                    "size": "lg",
+                    "variant": variant,
+                    "icon": "",
+                    "customCode": "",
+                    "request": {
+                        "datasource": "",
+                        "url": url,
+                        "method": "POST",
+                        "contentType": "application/json",
+                        "headers": [],
+                        "body": "",
+                    },
+                }
+            ],
+            "orientation": "center",
+        },
+    }
+
+
 def with_header(panels: list, key: str) -> list:
     """Prepend an 'About this Dashboard' row + HTML text panel to panels.
 
@@ -525,6 +564,17 @@ def query_var(name, label, query, multi=True, include_all=True,
     if all_value:
         v["allValue"] = all_value
     return v
+
+
+def const_var(name, label, value, hide=0):
+    """Constant variable — a fixed string editable from the dashboard header."""
+    return {
+        "name": name, "type": "constant", "label": label,
+        "query": value,
+        "current": {"value": value, "text": value, "selected": False},
+        "hide": hide,
+        "options": [],
+    }
 
 
 # ── Panel ID assignment ───────────────────────────────────────────────────────
@@ -1704,10 +1754,216 @@ def dash_traffic_sankey():
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# Dashboard 7 — Landing Page
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_LANDING_LINKS_HTML = """\
+<div style="padding:14px 20px; font-size:14px; line-height:1.8; display:flex; gap:48px; flex-wrap:wrap;">
+
+  <div>
+    <div style="font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;">Repository</div>
+    <a href="https://github.com/grafana/network-o11y-demo" target="_blank"
+       style="color:#6e9fff;">grafana/network-o11y-demo</a><br>
+    <a href="https://github.com/grafana/network-o11y-demo/blob/main/README.md" target="_blank"
+       style="color:#6e9fff;">README — setup &amp; architecture</a>
+  </div>
+
+  <div>
+    <div style="font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;">Blog Series — Network Observability Without the Lock-in</div>
+    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 1: The Case Against SolarWinds</a><br>
+    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 2: The Open Network Observability Stack</a><br>
+    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 3: Building the Lab</a><br>
+    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 4: NetBox as Your Source of Truth</a><br>
+    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 5: Observability with Grafana</a><br>
+    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 6: Config Management with Ansible</a>
+  </div>
+
+  <div>
+    <div style="font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;">Stack</div>
+    Grafana Cloud &nbsp;·&nbsp; Prometheus &nbsp;·&nbsp; Loki<br>
+    Grafana Alloy &nbsp;·&nbsp; gnmic &nbsp;·&nbsp; ktranslate<br>
+    Nokia SR Linux &nbsp;·&nbsp; NetBox &nbsp;·&nbsp; Ansible<br>
+    AWS EKS &nbsp;·&nbsp; Clabbernetes
+  </div>
+
+</div>
+"""
+
+_LANDING_DEMO_HTML = """\
+<div style="padding:14px 20px; font-size:13.5px; line-height:1.75;">
+
+  <p style="margin:0 0 10px 0; font-size:15px; font-weight:600;">
+    The SolarWinds Alternative — Live Demo Script
+  </p>
+
+  <p style="margin:0 0 14px 0; color:#aaa;">
+    This environment runs a Nokia SR Linux Clos fabric (2 spines, 3 leaves, 3 Linux clients)
+    entirely monitored with open-source tooling — Grafana, Prometheus, Loki, Alloy, gnmic,
+    and NetBox. No per-node licensing. No proprietary agents. No vendor lock-in.
+  </p>
+
+  <ol style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px;">
+    <li>Set the time range to <strong>Last 15 minutes</strong> (top-right).</li>
+    <li>
+      Open <strong>NetBox</strong> — the inventory source of truth for this demo.<br>
+      <span style="color:#aaa; font-size:12px;">
+        If you haven't already, clone the repo and set up the SSH tunnel:
+      </span>
+      <pre style="margin:6px 0 0 0; padding:8px 12px; background:#1a1a2e; border-radius:4px; font-size:11.5px; line-height:1.7; overflow-x:auto;"># Prerequisites (one-time):
+#   1. AWS CLI v2: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html
+#   2. SSM plugin: https://docs.aws.amazon.com/systems-manager/latest/userguide/
+#                  session-manager-working-with-install-plugin.html
+#   3. Configure your Grafana AWS credentials: aws configure
+
+git clone https://github.com/grafana/network-o11y-demo
+cd network-o11y-demo
+bash scripts/access.sh   # auto-detects SSM — no SSH key needed</pre>
+      <span style="color:#aaa; font-size:12px;">
+        Then navigate to
+        <a href="http://localhost:8080" target="_blank" style="color:#6e9fff;">http://localhost:8080</a>
+        (login: <code>admin</code> / password from <code>k8s/netbox/netbox-secret.yaml</code>).
+        Show the device list — every device has a role (<code>spine</code>, <code>leaf</code>, <code>client</code>),
+        a site, and a platform. These labels flow automatically into every Prometheus metric via the
+        netbox-sd adapter — no manual tagging in the collector.
+      </span>
+    </li>
+    <li>
+      Open <strong>BGP Status</strong> — confirm all 6 eBGP sessions are green.<br>
+      <span style="color:#aaa; font-size:12px;">
+        SolarWinds equivalent: NPM BGP MIB polling (5-min minimum granularity, no log correlation).
+      </span>
+    </li>
+    <li>
+      Open <strong>Interface Health</strong> — both spines are active, traffic is balanced.<br>
+      <span style="color:#aaa; font-size:12px;">
+        Filter by <code>device_role=spine</code> — that label came from NetBox automatically. SolarWinds
+        requires manually maintained node groups to achieve the same filtering.
+      </span>
+    </li>
+    <li>
+      Click <strong style="color:#f87171;">Stop Spine 1</strong> on the right →<br>
+      <span style="color:#aaa; font-size:12px;">
+        This scales the spine1 Kubernetes deployment to 0 replicas, simulating a total node failure.
+      </span>
+    </li>
+    <li>
+      Return to <strong>BGP Status</strong> — sessions to spine1 will flip red within seconds.<br>
+      Traffic reconverges to spine2 automatically (watch Interface Health).
+    </li>
+    <li>
+      Open <strong>Device Details → spine2</strong> — check the syslog panel for NOTIFICATION messages.<br>
+      <span style="color:#aaa; font-size:12px;">
+        Metrics and logs in the same dashboard, same time window. SolarWinds needs a separate Log Analyzer product for this.
+      </span>
+    </li>
+    <li>
+      Click <strong style="color:#4ade80;">Start Spine 1</strong> on the right →<br>
+      BGP reconverges. Typical recovery: &lt; 30 seconds.
+    </li>
+    <li>
+      Point out the <strong>Network Topology</strong> dashboard — live link utilisation overlaid on
+      the Clos diagram, animated. SolarWinds equivalent: Network Atlas (static maps, no live overlay).
+    </li>
+  </ol>
+
+</div>
+"""
+
+
+def dash_landing_page():
+    CTRL = "${controller_url}"
+
+    panels = [
+        # ── Row 1: Announcements and Information ──────────────────────────────
+        {
+            "id": None, "type": "row",
+            "title": "Announcements and Information",
+            "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+            "collapsed": False, "panels": [],
+        },
+        {
+            "id": None, "type": "text", "title": "",
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 1},
+            "datasource": None,
+            "fieldConfig": {"defaults": {}, "overrides": []},
+            "options": {
+                "code": {
+                    "language": "plaintext",
+                    "showLineNumbers": False,
+                    "showMiniMap": False,
+                },
+                "content": _LANDING_LINKS_HTML,
+                "mode": "html",
+            },
+            "pluginVersion": "10.0.0",
+            "transparent": True,
+        },
+
+        # ── Row 2: Demo Block ─────────────────────────────────────────────────
+        {
+            "id": None, "type": "row",
+            "title": "Demo Block",
+            "gridPos": {"h": 1, "w": 24, "x": 0, "y": 9},
+            "collapsed": False, "panels": [],
+        },
+        {
+            "id": None, "type": "text", "title": "",
+            "gridPos": {"h": 14, "w": 14, "x": 0, "y": 10},
+            "datasource": None,
+            "fieldConfig": {"defaults": {}, "overrides": []},
+            "options": {
+                "code": {
+                    "language": "plaintext",
+                    "showLineNumbers": False,
+                    "showMiniMap": False,
+                },
+                "content": _LANDING_DEMO_HTML,
+                "mode": "html",
+            },
+            "pluginVersion": "10.0.0",
+            "transparent": True,
+        },
+        button_panel(
+            title="",
+            button_text="Stop Spine 1",
+            url=f"{CTRL}/spine/spine1/stop",
+            x=14, y=10, w=10, h=5,
+            variant="destructive",
+        ),
+        button_panel(
+            title="",
+            button_text="Start Spine 1",
+            url=f"{CTRL}/spine/spine1/start",
+            x=14, y=15, w=10, h=5,
+            variant="primary",
+        ),
+    ]
+
+    return dashboard(
+        uid="landing-page",
+        title="00 Network O11y Landing Page",
+        panels=panels,
+        variables=[
+            const_var(
+                name="controller_url",
+                label="Spine Controller URL",
+                value="http://REPLACE_WITH_LB_HOSTNAME",
+            ),
+        ],
+        description=(
+            "Landing page for the Network O11y demo. "
+            "Links, announcements, and a live demo script for the SolarWinds alternative story."
+        ),
+        refresh="",
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # Write JSON files
 # ═══════════════════════════════════════════════════════════════════════════════
 
 DASHBOARDS = [
+    ("landing-page",       dash_landing_page),
     ("interface-health",   dash_interface_health),
     ("bgp-status",         dash_bgp_status),
     ("traffic-flows",      dash_traffic_flows),

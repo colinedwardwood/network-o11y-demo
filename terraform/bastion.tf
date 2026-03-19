@@ -74,6 +74,14 @@ resource "aws_iam_role_policy" "bastion_eks" {
   })
 }
 
+# SSM managed instance core — lets any IAM principal with ssm:StartSession
+# connect via AWS SSM Session Manager without SSH keys or SG rules.
+# Team members authenticate with their own AWS credentials; no .pem needed.
+resource "aws_iam_role_policy_attachment" "bastion_ssm" {
+  role       = aws_iam_role.bastion.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 resource "aws_iam_instance_profile" "bastion" {
   name = "${local.name}-bastion"
   role = aws_iam_role.bastion.name

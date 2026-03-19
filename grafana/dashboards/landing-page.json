@@ -1,0 +1,197 @@
+{
+  "uid": "landing-page",
+  "title": "00 Network O11y Landing Page",
+  "description": "Landing page for the Network O11y demo. Links, announcements, and a live demo script for the SolarWinds alternative story.",
+  "tags": [
+    "network-o11y-demo"
+  ],
+  "schemaVersion": 41,
+  "version": 0,
+  "refresh": "",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "id": 1,
+      "type": "row",
+      "title": "Announcements and Information",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 2,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"padding:14px 20px; font-size:14px; line-height:1.8; display:flex; gap:48px; flex-wrap:wrap;\">\n\n  <div>\n    <div style=\"font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;\">Repository</div>\n    <a href=\"https://github.com/grafana/network-o11y-demo\" target=\"_blank\"\n       style=\"color:#6e9fff;\">grafana/network-o11y-demo</a><br>\n    <a href=\"https://github.com/grafana/network-o11y-demo/blob/main/README.md\" target=\"_blank\"\n       style=\"color:#6e9fff;\">README \u2014 setup &amp; architecture</a>\n  </div>\n\n  <div>\n    <div style=\"font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;\">Blog Series \u2014 Network Observability Without the Lock-in</div>\n    <a href=\"https://grafana.com/blog/\" target=\"_blank\" style=\"color:#6e9fff;\">Post 1: The Case Against SolarWinds</a><br>\n    <a href=\"https://grafana.com/blog/\" target=\"_blank\" style=\"color:#6e9fff;\">Post 2: The Open Network Observability Stack</a><br>\n    <a href=\"https://grafana.com/blog/\" target=\"_blank\" style=\"color:#6e9fff;\">Post 3: Building the Lab</a><br>\n    <a href=\"https://grafana.com/blog/\" target=\"_blank\" style=\"color:#6e9fff;\">Post 4: NetBox as Your Source of Truth</a><br>\n    <a href=\"https://grafana.com/blog/\" target=\"_blank\" style=\"color:#6e9fff;\">Post 5: Observability with Grafana</a><br>\n    <a href=\"https://grafana.com/blog/\" target=\"_blank\" style=\"color:#6e9fff;\">Post 6: Config Management with Ansible</a>\n  </div>\n\n  <div>\n    <div style=\"font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;\">Stack</div>\n    Grafana Cloud &nbsp;\u00b7&nbsp; Prometheus &nbsp;\u00b7&nbsp; Loki<br>\n    Grafana Alloy &nbsp;\u00b7&nbsp; gnmic &nbsp;\u00b7&nbsp; ktranslate<br>\n    Nokia SR Linux &nbsp;\u00b7&nbsp; NetBox &nbsp;\u00b7&nbsp; Ansible<br>\n    AWS EKS &nbsp;\u00b7&nbsp; Clabbernetes\n  </div>\n\n</div>\n",
+        "mode": "html"
+      },
+      "pluginVersion": "10.0.0",
+      "transparent": true
+    },
+    {
+      "id": 3,
+      "type": "row",
+      "title": "Demo Block",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "id": 4,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 14,
+        "w": 14,
+        "x": 0,
+        "y": 10
+      },
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div style=\"padding:14px 20px; font-size:13.5px; line-height:1.75;\">\n\n  <p style=\"margin:0 0 10px 0; font-size:15px; font-weight:600;\">\n    The SolarWinds Alternative \u2014 Live Demo Script\n  </p>\n\n  <p style=\"margin:0 0 14px 0; color:#aaa;\">\n    This environment runs a Nokia SR Linux Clos fabric (2 spines, 3 leaves, 3 Linux clients)\n    entirely monitored with open-source tooling \u2014 Grafana, Prometheus, Loki, Alloy, gnmic,\n    and NetBox. No per-node licensing. No proprietary agents. No vendor lock-in.\n  </p>\n\n  <ol style=\"margin:0; padding-left:20px; display:flex; flex-direction:column; gap:8px;\">\n    <li>Set the time range to <strong>Last 15 minutes</strong> (top-right).</li>\n    <li>\n      Open <strong>NetBox</strong> \u2014 the inventory source of truth for this demo.<br>\n      <span style=\"color:#aaa; font-size:12px;\">\n        If you haven't already, clone the repo and set up the SSH tunnel:\n      </span>\n      <pre style=\"margin:6px 0 0 0; padding:8px 12px; background:#1a1a2e; border-radius:4px; font-size:11.5px; line-height:1.7; overflow-x:auto;\"># Prerequisites (one-time):\n#   1. AWS CLI v2: https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html\n#   2. SSM plugin: https://docs.aws.amazon.com/systems-manager/latest/userguide/\n#                  session-manager-working-with-install-plugin.html\n#   3. Configure your Grafana AWS credentials: aws configure\n\ngit clone https://github.com/grafana/network-o11y-demo\ncd network-o11y-demo\nbash scripts/access.sh   # auto-detects SSM \u2014 no SSH key needed</pre>\n      <span style=\"color:#aaa; font-size:12px;\">\n        Then navigate to\n        <a href=\"http://localhost:8080\" target=\"_blank\" style=\"color:#6e9fff;\">http://localhost:8080</a>\n        (login: <code>admin</code> / password from <code>k8s/netbox/netbox-secret.yaml</code>).\n        Show the device list \u2014 every device has a role (<code>spine</code>, <code>leaf</code>, <code>client</code>),\n        a site, and a platform. These labels flow automatically into every Prometheus metric via the\n        netbox-sd adapter \u2014 no manual tagging in the collector.\n      </span>\n    </li>\n    <li>\n      Open <strong>BGP Status</strong> \u2014 confirm all 6 eBGP sessions are green.<br>\n      <span style=\"color:#aaa; font-size:12px;\">\n        SolarWinds equivalent: NPM BGP MIB polling (5-min minimum granularity, no log correlation).\n      </span>\n    </li>\n    <li>\n      Open <strong>Interface Health</strong> \u2014 both spines are active, traffic is balanced.<br>\n      <span style=\"color:#aaa; font-size:12px;\">\n        Filter by <code>device_role=spine</code> \u2014 that label came from NetBox automatically. SolarWinds\n        requires manually maintained node groups to achieve the same filtering.\n      </span>\n    </li>\n    <li>\n      Click <strong style=\"color:#f87171;\">Stop Spine 1</strong> on the right \u2192<br>\n      <span style=\"color:#aaa; font-size:12px;\">\n        This scales the spine1 Kubernetes deployment to 0 replicas, simulating a total node failure.\n      </span>\n    </li>\n    <li>\n      Return to <strong>BGP Status</strong> \u2014 sessions to spine1 will flip red within seconds.<br>\n      Traffic reconverges to spine2 automatically (watch Interface Health).\n    </li>\n    <li>\n      Open <strong>Device Details \u2192 spine2</strong> \u2014 check the syslog panel for NOTIFICATION messages.<br>\n      <span style=\"color:#aaa; font-size:12px;\">\n        Metrics and logs in the same dashboard, same time window. SolarWinds needs a separate Log Analyzer product for this.\n      </span>\n    </li>\n    <li>\n      Click <strong style=\"color:#4ade80;\">Start Spine 1</strong> on the right \u2192<br>\n      BGP reconverges. Typical recovery: &lt; 30 seconds.\n    </li>\n    <li>\n      Point out the <strong>Network Topology</strong> dashboard \u2014 live link utilisation overlaid on\n      the Clos diagram, animated. SolarWinds equivalent: Network Atlas (static maps, no live overlay).\n    </li>\n  </ol>\n\n</div>\n",
+        "mode": "html"
+      },
+      "pluginVersion": "10.0.0",
+      "transparent": true
+    },
+    {
+      "id": 5,
+      "type": "volkovlabs-button-panel",
+      "title": "",
+      "gridPos": {
+        "h": 5,
+        "w": 10,
+        "x": 14,
+        "y": 10
+      },
+      "datasource": null,
+      "targets": [],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "buttons": [
+          {
+            "text": "Stop Spine 1",
+            "size": "lg",
+            "variant": "destructive",
+            "icon": "",
+            "customCode": "",
+            "request": {
+              "datasource": "",
+              "url": "${controller_url}/spine/spine1/stop",
+              "method": "POST",
+              "contentType": "application/json",
+              "headers": [],
+              "body": ""
+            }
+          }
+        ],
+        "orientation": "center"
+      }
+    },
+    {
+      "id": 6,
+      "type": "volkovlabs-button-panel",
+      "title": "",
+      "gridPos": {
+        "h": 5,
+        "w": 10,
+        "x": 14,
+        "y": 15
+      },
+      "datasource": null,
+      "targets": [],
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "options": {
+        "buttons": [
+          {
+            "text": "Start Spine 1",
+            "size": "lg",
+            "variant": "primary",
+            "icon": "",
+            "customCode": "",
+            "request": {
+              "datasource": "",
+              "url": "${controller_url}/spine/spine1/start",
+              "method": "POST",
+              "contentType": "application/json",
+              "headers": [],
+              "body": ""
+            }
+          }
+        ],
+        "orientation": "center"
+      }
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "controller_url",
+        "type": "constant",
+        "label": "Spine Controller URL",
+        "query": "http://REPLACE_WITH_LB_HOSTNAME",
+        "current": {
+          "value": "http://REPLACE_WITH_LB_HOSTNAME",
+          "text": "http://REPLACE_WITH_LB_HOSTNAME",
+          "selected": false
+        },
+        "hide": 0,
+        "options": []
+      }
+    ]
+  },
+  "annotations": {
+    "list": []
+  },
+  "fiscalYearStartMonth": 0
+}
