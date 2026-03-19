@@ -1770,12 +1770,13 @@ _LANDING_LINKS_HTML = """\
 
   <div>
     <div style="font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px;">Blog Series — Network Observability Without the Lock-in</div>
-    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 1: The Case Against SolarWinds</a><br>
-    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 2: The Open Network Observability Stack</a><br>
-    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 3: Building the Lab</a><br>
-    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 4: NetBox as Your Source of Truth</a><br>
-    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 5: Observability with Grafana</a><br>
-    <a href="https://grafana.com/blog/" target="_blank" style="color:#6e9fff;">Post 6: Config Management with Ansible</a>
+    <a href="https://github.com/grafana/network-o11y-demo/blob/main/blog/10_drafts/blog-post-01-the-case.md" target="_blank" style="color:#6e9fff;">Post 1: The Case Against SolarWinds</a><br>
+    <a href="https://github.com/grafana/network-o11y-demo/blob/main/blog/10_drafts/blog-post-02-the-stack.md" target="_blank" style="color:#6e9fff;">Post 2: The Open Network Observability Stack</a><br>
+    <a href="https://github.com/grafana/network-o11y-demo/blob/main/blog/10_drafts/blog-post-03-the-lab.md" target="_blank" style="color:#6e9fff;">Post 3: Building the Lab</a><br>
+    <a href="https://github.com/grafana/network-o11y-demo/blob/main/blog/10_drafts/blog-post-04-netbox.md" target="_blank" style="color:#6e9fff;">Post 4: NetBox as Your Source of Truth</a><br>
+    <a href="https://github.com/grafana/network-o11y-demo/blob/main/blog/10_drafts/blog-post-05-grafana.md" target="_blank" style="color:#6e9fff;">Post 5: Observability with Grafana</a><br>
+    <a href="https://github.com/grafana/network-o11y-demo/blob/main/blog/10_drafts/blog-post-06-ansible.md" target="_blank" style="color:#6e9fff;">Post 6: Config Management with Ansible</a><br>
+    <a href="https://github.com/grafana/network-o11y-demo/blob/main/blog/10_drafts/blog-post-07-migration.md" target="_blank" style="color:#6e9fff;">Post 7: Migration Guide</a>
   </div>
 
   <div>
